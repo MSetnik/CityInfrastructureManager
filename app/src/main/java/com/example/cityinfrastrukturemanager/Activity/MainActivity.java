@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 
+import com.example.cityinfrastrukturemanager.DatabaseConn.DbConn;
 import com.example.cityinfrastrukturemanager.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
         ToolbarSetup();
         GoToMaps();
+        DbConnect();
     }
     
     
@@ -58,4 +60,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void DbConnect()
+    {
+        DbConn dbConn = new DbConn(this, "prikazi_podatke");
+        String type = "Ispad";
+        dbConn.execute();
+    }
+
+    private void GetIspadi()
+    {
+
+    }
+
+
 }
