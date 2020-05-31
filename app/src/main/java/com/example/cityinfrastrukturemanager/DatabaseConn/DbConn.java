@@ -4,31 +4,39 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.example.cityinfrastrukturemanager.Model.Grad;
 import com.example.cityinfrastrukturemanager.Model.Ispad;
+import com.example.cityinfrastrukturemanager.Model.Korisnik;
+import com.example.cityinfrastrukturemanager.Model.SifrarnikVrstaIspada;
+import com.example.cityinfrastrukturemanager.Model.Zupanija;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-public class DbConn extends AsyncTask<String, Void, String> {
-    AlertDialog alertDialog;
+public class DbConn extends AsyncTask<Void, Void, String> {
+    private static final String TAG = "MyApp";
+
+    private AlertDialog alertDialog;
     private Context context;
     private String action_id;
+    private ArrayList<Ispad> lIspad = new ArrayList<>();
+    private ArrayList<Korisnik> lKorisnici = new ArrayList<>();
+    private ArrayList<Grad> lGradovi = new ArrayList<>();
+    private ArrayList<Zupanija> lZupanije = new ArrayList<>();
+    private ArrayList<SifrarnikVrstaIspada> lSifrarnikVrsteIspada = new ArrayList<>();
+    private JSONParser jsonParser = new JSONParser();
+    private String json = "";
 
     public DbConn (Context ctx, String sActionId)
     {
@@ -36,10 +44,10 @@ public class DbConn extends AsyncTask<String, Void, String> {
         context = ctx;
     }
     @Override
-    protected String doInBackground(String... strings) {
+    protected String doInBackground(Void... voids) {
         //String db_url = "http://student.vsmti.hr/dpersic/PIS_KV/dbc.php";
         String db_url = "http://student.vsmti.hr/dpersic/PIS_KV/json.php?action="+action_id;
-        String type = strings[0];
+        //String type = strings[0];
 
         try {
             URL url = new URL(db_url);
@@ -67,7 +75,8 @@ public class DbConn extends AsyncTask<String, Void, String> {
             bufferedReader.close();
             inputStream.close();
             httpURLConnection.disconnect();
-            return result;
+            json = result;
+            return json;
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -80,9 +89,22 @@ public class DbConn extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String result) {
         String uspjeh ="Uspjeh";
-        alertDialog.setMessage(result);
-        alertDialog.show();
+        //SpremiIspade();
+        //SpremiIspade(result);
+        //listener.OnFinish(lIspad);
+        //Log.d(TAG, "SpremiUListu: On post execute" + result);
+        //ArrayList<Ispad>ISPADI = SpremiIspade(result);
+
+        //listener.OnFinish(ISPADI);
+        /*for (Ispad ispad : ISPADI)
+        {
+            Log.d(TAG, "SpremiUListu: "+ispad.getId_grad() + " " + ispad.getId_korisnik());
+        }*/
+        /*alertDialog.setMessage(result);
+        alertDialog.show();*/
+
     }
+
 
     @Override
     protected void onPreExecute() {
@@ -95,4 +117,153 @@ public class DbConn extends AsyncTask<String, Void, String> {
     }
 
 
+    public ArrayList<Ispad> SpremiIspade()
+    {
+        try {
+            JSONArray jsonArray=(JSONArray) jsonParser.parse(json);
+
+            for (int i=0;i<jsonArray.size();i++)
+            {
+                //korištena druga biblioteka (json-simple) pa je zato dugacak naziv
+                org.json.simple.JSONObject jsonObject = (org.json.simple.JSONObject) jsonArray.get(i);
+                int ispadID = Integer.parseInt(jsonObject.get("id_ispad").toString());
+                int korisnikID =  Integer.parseInt(jsonObject.get("id_korisnik").toString());
+                int vrstaIspadaID = Integer.parseInt(jsonObject.get("id_vrsta_ispada").toString());
+                int gradID =  Integer.parseInt(jsonObject.get("id_grad").toString());
+                String pocetakIspada = jsonObject.get("pocetak_ispada").toString();
+                String krajIspada = jsonObject.get("kraj_ispada").toString();
+                String opis = jsonObject.get("opis").toString();
+
+                Ispad ispad = new Ispad(ispadID, korisnikID, vrstaIspadaID, gradID, pocetakIspada, krajIspada, opis);
+                lIspad.add(ispad);
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
+        return lIspad;
+    }
+
+    public ArrayList<Ispad> DohvatiIspade()
+    {
+        return lIspad;
+    }
+
+    public List<Korisnik> SpremiKorisnike()
+    {
+
+        try {
+            JSONArray jsonArray =(JSONArray) jsonParser.parse(json);
+
+            for (int i=0;i<jsonArray.size();i++)
+            {
+                //korištena druga biblioteka (json-simple) pa je zato dugacak naziv
+                org.json.simple.JSONObject jsonObject = (org.json.simple.JSONObject) jsonArray.get(i);
+                int korisnikID =Integer.parseInt(jsonObject.get("id_ispad").toString());
+                String korisnicko_ime = jsonObject.get("id_korisnik").toString();
+                String lozinka = jsonObject.get("id_vrsta_ispada").toString();
+                String ime =  jsonObject.get("id_grad").toString();
+                String prezime = jsonObject.get("pocetak_ispada").toString();
+
+
+                Korisnik korisnik = new Korisnik(korisnikID, korisnicko_ime, lozinka, ime, prezime);
+                lKorisnici.add(korisnik);
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return lKorisnici;
+    }
+
+    /*public List<Ispad> SpremiGradove()
+    {
+
+        try {
+            JSONArray jsonArray =(JSONArray) jsonParser.parse(json);
+
+            for (int i=0;i<jsonArray.size();i++)
+            {
+                //korištena druga biblioteka (json-simple) pa je zato dugacak naziv
+                org.json.simple.JSONObject jsonObject = (org.json.simple.JSONObject) jsonArray.get(i);
+                int ispadID = Integer.parseInt(jsonObject.get("id_ispad").toString());
+                int korisnikID =  Integer.parseInt(jsonObject.get("id_korisnik").toString());
+                int vrstaIspadaID = Integer.parseInt(jsonObject.get("id_vrsta_ispada").toString());
+                int gradID =  Integer.parseInt(jsonObject.get("id_grad").toString());
+                String pocetakIspada = jsonObject.get("pocetak_ispada").toString();
+                String krajIspada = jsonObject.get("kraj_ispada").toString();
+                String opis = jsonObject.get("opis").toString();
+
+                Ispad ispad = new Ispad(ispadID, korisnikID, vrstaIspadaID, gradID, pocetakIspada, krajIspada, opis);
+                lIspad.add(ispad);
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return lIspad;
+    }
+
+    public List<Ispad> SpremiZupanije()
+    {
+
+        try {
+            JSONArray jsonArray =(JSONArray) jsonParser.parse(json);
+
+            for (int i=0;i<jsonArray.size();i++)
+            {
+                //korištena druga biblioteka (json-simple) pa je zato dugacak naziv
+                org.json.simple.JSONObject jsonObject = (org.json.simple.JSONObject) jsonArray.get(i);
+                int ispadID = Integer.parseInt(jsonObject.get("id_ispad").toString());
+                int korisnikID =  Integer.parseInt(jsonObject.get("id_korisnik").toString());
+                int vrstaIspadaID = Integer.parseInt(jsonObject.get("id_vrsta_ispada").toString());
+                int gradID =  Integer.parseInt(jsonObject.get("id_grad").toString());
+                String pocetakIspada = jsonObject.get("pocetak_ispada").toString();
+                String krajIspada = jsonObject.get("kraj_ispada").toString();
+                String opis = jsonObject.get("opis").toString();
+
+                Ispad ispad = new Ispad(ispadID, korisnikID, vrstaIspadaID, gradID, pocetakIspada, krajIspada, opis);
+                lIspad.add(ispad);
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return lIspad;
+    }
+
+    public List<Ispad> SpremiSifrarnikIspada()
+    {
+
+        try {
+            JSONArray jsonArray =(JSONArray) jsonParser.parse(json);
+
+            for (int i=0;i<jsonArray.size();i++)
+            {
+                //korištena druga biblioteka (json-simple) pa je zato dugacak naziv
+                org.json.simple.JSONObject jsonObject = (org.json.simple.JSONObject) jsonArray.get(i);
+                int ispadID = Integer.parseInt(jsonObject.get("id_ispad").toString());
+                int korisnikID =  Integer.parseInt(jsonObject.get("id_korisnik").toString());
+                int vrstaIspadaID = Integer.parseInt(jsonObject.get("id_vrsta_ispada").toString());
+                int gradID =  Integer.parseInt(jsonObject.get("id_grad").toString());
+                String pocetakIspada = jsonObject.get("pocetak_ispada").toString();
+                String krajIspada = jsonObject.get("kraj_ispada").toString();
+                String opis = jsonObject.get("opis").toString();
+
+                Ispad ispad = new Ispad(ispadID, korisnikID, vrstaIspadaID, gradID, pocetakIspada, krajIspada, opis);
+                lIspad.add(ispad);
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return lIspad;
+    }
+*/
 }

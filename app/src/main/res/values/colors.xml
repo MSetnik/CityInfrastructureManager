@@ -4,5 +4,7 @@
     <color name="colorPrimaryDark">#1E88E5</color>
     <color name="colorAccent">#40C4FF</color>
     <color name="RecyclerBackground">#F4EDED</color>
-    <color name="ToolbarText">#FFFFFF</color>
+    <color name="ToolbarText">#2FBC08</color>
+    <color name="rijeseno">#FF2FBC08</color>
+    <color name="nijerijeseno">#FFCF1B0B</color>
 </resources>
