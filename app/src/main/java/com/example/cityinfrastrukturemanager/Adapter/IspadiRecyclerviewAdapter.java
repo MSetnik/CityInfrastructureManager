@@ -96,12 +96,15 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
     }
 
     public static String GetTime(String datetime) {
-        String strTime = datetime.substring(12,19);
+        String strTime = datetime.substring(12,16);
         return strTime;
     }
 
     public static String GetDate(String datetime) {
-        String strDate = datetime.substring(0,11);
+        String godina = datetime.substring(0,4);
+        String mjesec = datetime.substring(5,7);
+        String dan = datetime.substring(8,10);
+        String strDate = dan+"."+mjesec+"."+godina;//datetime.substring(0,11);
         return strDate;
     }
 

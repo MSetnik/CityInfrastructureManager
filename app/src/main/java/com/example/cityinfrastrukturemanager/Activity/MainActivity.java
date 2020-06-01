@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private DbConn dbConn;
     private RecyclerView recyclerView;
     private IspadiRecyclerviewAdapter ispadiRecyclerviewAdapter;
-
+    private MapsActivity mapsActivity;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
