@@ -28,6 +28,7 @@ import java.util.Date;
 public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecyclerviewAdapter.IspadiViewHolder> {
     private ArrayList<IspadPrikaz>lIspadPrikaz;
     private Context context;
+    private IspadClickListener ispadClickListener;
 
     public IspadiRecyclerviewAdapter (Context context,ArrayList<IspadPrikaz> lIspadPrikaz) {
         this.lIspadPrikaz = lIspadPrikaz;
@@ -87,13 +88,6 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
 
     }
 
-    public static Date GetTodayDate()
-    {
-        Date dtf = new Date();
-        dtf.getTime();
-
-        return dtf;
-    }
 
     public static String GetTime(String datetime) {
         String strTime = datetime.substring(12,16);
@@ -128,6 +122,23 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
             vrijemePocetka = itemView.findViewById(R.id.VrijemeIspada_CardViewTxt);
             datumPocetka = itemView.findViewById(R.id.DatumIspada_CardViewTxt);
             stanjeIspada = itemView.findViewById(R.id.StanjeIspada_CardView);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    ispadClickListener.onIspadClick(lIspadPrikaz.get(position));
+                }
+            });
         }
+    }
+
+    public interface IspadClickListener{
+        void onIspadClick(IspadPrikaz ispadiPrikaz);
+    }
+
+    public void SetOnClickListenerIspadDetalji(IspadClickListener ispadClickListener)
+    {
+        this.ispadClickListener = ispadClickListener;
     }
 }

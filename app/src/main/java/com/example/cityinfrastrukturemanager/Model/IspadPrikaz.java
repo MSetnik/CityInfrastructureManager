@@ -1,26 +1,40 @@
 package com.example.cityinfrastrukturemanager.Model;
 
-public class IspadPrikaz {
+import java.io.Serializable;
+
+public class IspadPrikaz implements Serializable {
     private int id_ispad;
     private String ime;
     private String prezime;
     private String vrstaIspada;
     private String grad;
+    private float lat;
+    private float lng;
     private String zupanija;
     private String pocetak_ispada;
     private String kraj_ispada;
     private String opis;
 
-    public IspadPrikaz(int id_ispad, String ime, String prezime, String vrstaIspada, String grad, String zupanija, String pocetak_ispada, String kraj_ispada, String opis) {
+    public IspadPrikaz(int id_ispad, String ime, String prezime, String vrstaIspada, String grad, float lat, float lng, String zupanija, String pocetak_ispada, String kraj_ispada, String opis) {
         this.id_ispad = id_ispad;
         this.ime = ime;
         this.prezime = prezime;
         this.vrstaIspada = vrstaIspada;
         this.grad = grad;
+        this.lat = lat;
+        this.lng = lng;
         this.zupanija = zupanija;
         this.pocetak_ispada = pocetak_ispada;
         this.kraj_ispada = kraj_ispada;
         this.opis = opis;
+    }
+
+    public float getLat() {
+        return lat;
+    }
+
+    public float getLng() {
+        return lng;
     }
 
     public int getId_ispad() {

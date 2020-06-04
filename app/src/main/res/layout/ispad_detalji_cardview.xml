@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <androidx.cardview.widget.CardView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_margin="10dp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="10dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="20dp">
+
+            <TextView
+                android:id="@+id/gradNazivHeader_ispad_detalji_CV"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="GRAD:"
+                android:textSize="20dp"
+                android:textColor="@color/textWhite"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="@color/colorPrimaryDark"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/gradNaziv_ispad_detalji_CV"/>
+
+            <TextView
+                android:id="@+id/gradNaziv_ispad_detalji_CV"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Valpovo"
+                android:gravity="center"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/gradNazivHeader_ispad_detalji_CV"
+                app:layout_constraintRight_toRightOf="parent"
+                android:textSize="20dp"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+
+            <TextView
+                android:id="@+id/zupanijaHeader_ispad_detalji_CV"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="ŽUPANIJA:"
+                android:gravity="center"
+                android:textColor="@color/textWhite"
+                android:textStyle="bold"
+                android:background="@color/colorPrimaryDark"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gradNazivHeader_ispad_detalji_CV"
+                app:layout_constraintRight_toLeftOf="@id/zupanija_ispad_detalji_CV"
+                android:textSize="20dp"
+                android:layout_marginTop="20dp"/>
+
+
+            <TextView
+                android:id="@+id/zupanija_ispad_detalji_CV"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Osjecko-baranjska"
+                android:layout_marginTop="20dp"
+                android:textSize="20dp"
+                android:gravity="center"
+                app:layout_constraintLeft_toRightOf="@id/zupanijaHeader_ispad_detalji_CV"
+                app:layout_constraintTop_toBottomOf="@id/gradNaziv_ispad_detalji_CV"
+                app:layout_constraintRight_toRightOf="parent"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+
+            <TextView
+                android:id="@+id/vrstaIspadaHeader_ispad_detalji_CV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="VRSTA ISPADA"
+                android:textColor="@color/textWhite"
+                android:textStyle="bold"
+                android:background="@color/colorPrimaryDark"
+                app:layout_constraintTop_toBottomOf="@id/zupanijaHeader_ispad_detalji_CV"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:gravity="center"
+                android:layout_marginTop="20dp"
+                android:textSize="20dp"/>
+
+            <TextView
+                android:id="@+id/vrstaIspada_ispad_detalji_CV"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Pukla cijev"
+                android:textSize="20dp"
+                android:gravity="center"
+                app:layout_constraintTop_toBottomOf="@id/vrstaIspadaHeader_ispad_detalji_CV"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:scrollHorizontally="false" />
+
+            <TextView
+                android:id="@+id/opisIspadaHeader_ispad_detalji_CV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="OPIS ISPADA"
+                android:textSize="20dp"
+                android:textColor="@color/textWhite"
+                android:textStyle="bold"
+                android:background="@color/colorPrimaryDark"
+                android:gravity="center"
+                app:layout_constraintTop_toBottomOf="@id/vrstaIspada_ispad_detalji_CV"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginTop="20dp"/>
+
+            <TextView
+                android:id="@+id/opisIspada_ispad_detalji_CV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:text="pukla cijev u matije gupca"
+                app:layout_constraintTop_toBottomOf="@id/opisIspadaHeader_ispad_detalji_CV"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:gravity="center"
+                android:scrollHorizontally="false"
+                />
+
+            <TextView
+                android:id="@+id/prijavaProblemaHeader_ispad_detalji_CV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PROBLEM PRIJAVLJEN U:"
+                android:textSize="20dp"
+                app:layout_constraintTop_toBottomOf="@id/opisIspada_ispad_detalji_CV"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginTop="20dp"
+                android:textColor="@color/textWhite"
+                android:textStyle="bold"
+                android:background="@color/colorPrimaryDark"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/prijavaProblemaVrijeme_ispad_detalji_CV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="14:36 "
+                app:layout_constraintTop_toBottomOf="@id/prijavaProblemaHeader_ispad_detalji_CV"
+                android:textSize="20dp"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/prijavaProblemaDatum_ispad_detalji_CV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="20.20.2020"
+                app:layout_constraintTop_toBottomOf="@id/prijavaProblemaVrijeme_ispad_detalji_CV"
+                app:layout_constraintBottom_toTopOf="@+id/btnMaps_ispad_detalji_CV"
+                android:textSize="20dp"
+                android:gravity="center"/>
+
+            <Button
+                android:id="@+id/btnMaps_ispad_detalji_CV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/prijavaProblemaDatum_ispad_detalji_CV"
+                android:text="Prikazi na karti"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:textColor="@color/textWhite"
+                android:backgroundTint="@color/colorSecondaryDark"
+                android:layout_marginTop="20dp"
+                android:padding="10dp" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

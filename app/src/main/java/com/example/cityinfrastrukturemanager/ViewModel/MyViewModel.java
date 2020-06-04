@@ -60,12 +60,14 @@ public class MyViewModel extends AndroidViewModel {
                 String prezime = String.valueOf(jsonObject.get("prezime"));
                 String vrstaIspada = String.valueOf(jsonObject.get("vrsta_ispada"));
                 String grad = String.valueOf(jsonObject.get("grad"));
+                float lat =Float.parseFloat(jsonObject.get("lat").toString());
+                float lng = Float.parseFloat(jsonObject.get("lng").toString());
                 String zupanija = String.valueOf(jsonObject.get("zupanija"));
                 String pocetakIspada = jsonObject.get("pocetak_ispada").toString();
                 String krajIspada = jsonObject.get("kraj_ispada").toString();
                 String opis = jsonObject.get("opis").toString();
 
-                IspadPrikaz ispadPrikaz = new IspadPrikaz(ispadID, ime, prezime, vrstaIspada, grad, zupanija, pocetakIspada, krajIspada, opis);
+                IspadPrikaz ispadPrikaz = new IspadPrikaz(ispadID, ime, prezime, vrstaIspada, grad, lat, lng ,zupanija, pocetakIspada, krajIspada, opis);
                 lIspadi.add(ispadPrikaz);
             }
 
