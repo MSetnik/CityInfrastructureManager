@@ -6,8 +6,9 @@
     <color name="colorSecondaryDark">#651FFF</color>
     <color name="textWhite">#FFE9EBEC</color>
     <color name="RecyclerBackground">#F4EDED</color>
-    <color name="ToolbarText">#2FBC08</color>
+    <color name="ToolbarText">#E6E8E6</color>
     <color name="rijeseno">#FF2FBC08</color>
     <color name="nijerijeseno">#FFCF1B0B</color>
     <color name="btnBackground">#FFFFFF</color>
+    <color name="black">#000000</color>
 </resources>

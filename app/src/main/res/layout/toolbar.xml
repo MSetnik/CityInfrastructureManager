@@ -3,25 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:background="@color/colorPrimary"
     android:elevation="4dp"
     android:id="@+id/Toolbar">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-        <com.miguelcatalan.materialsearchview.MaterialSearchView
-            android:id="@+id/Search_mainActivity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </androidx.appcompat.widget.Toolbar>

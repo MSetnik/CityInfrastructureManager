@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,15 +25,20 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 
-public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecyclerviewAdapter.IspadiViewHolder> {
+public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecyclerviewAdapter.IspadiViewHolder> implements Filterable {
     private ArrayList<IspadPrikaz>lIspadPrikaz;
+    private ArrayList<IspadPrikaz>searchIspadPrikaz;
+
     private Context context;
     private IspadClickListener ispadClickListener;
 
+
     public IspadiRecyclerviewAdapter (Context context,ArrayList<IspadPrikaz> lIspadPrikaz) {
         this.lIspadPrikaz = lIspadPrikaz;
+        this.searchIspadPrikaz = new ArrayList<>(lIspadPrikaz);
         this.context = context;
     }
 
@@ -57,9 +64,17 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
         Date date1 =stringToDate(todayDate, "yyyy-MM-dd HH:mm:ss.SSS");
         Date date2 = stringToDate(date,"yyyy-MM-dd HH:mm:ss.SSS");
 
-        if (date1.compareTo(date2) > 0) {
-            holder.stanjeIspada.setText("Rijeseno");
-            holder.stanjeIspada.setTextColor(ContextCompat.getColor(context,R.color.rijeseno));
+        if(date != "")
+        {
+            if (date1.compareTo(date2) > 0) {
+                holder.stanjeIspada.setText("Rijeseno");
+                holder.stanjeIspada.setTextColor(ContextCompat.getColor(context,R.color.rijeseno));
+            }
+            else
+            {
+                holder.stanjeIspada.setText("Nije rijeseno");
+                holder.stanjeIspada.setTextColor(ContextCompat.getColor(context,R.color.nijerijeseno));
+            }
         }
         else
         {
@@ -106,6 +121,48 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
     public int getItemCount() {
         return lIspadPrikaz.size();
     }
+
+    @Override
+    public Filter getFilter() {
+
+        return filter;
+    }
+
+    private Filter filter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            ArrayList<IspadPrikaz>filtriranPrikaz = new ArrayList<>();
+
+            if(constraint == null ||constraint.length()==0)
+            {
+                filtriranPrikaz.addAll(lIspadPrikaz);
+            }
+            else
+            {
+                String filterPattern = constraint.toString().toLowerCase().trim();
+
+                for(IspadPrikaz prikaz : lIspadPrikaz)
+                {
+                    if(prikaz.getGrad().toLowerCase().contains(filterPattern))
+                    {
+                        filtriranPrikaz.add(prikaz);
+                    }
+                }
+            }
+            FilterResults result = new FilterResults();
+            result.values = filtriranPrikaz;
+
+            return result;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            searchIspadPrikaz.clear();
+            searchIspadPrikaz.addAll((ArrayList) results.values);
+
+            notifyDataSetChanged();
+        }
+    };
 
     class IspadiViewHolder extends RecyclerView.ViewHolder {
 

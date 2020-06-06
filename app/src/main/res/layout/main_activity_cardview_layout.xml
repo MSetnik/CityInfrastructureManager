@@ -26,6 +26,8 @@
             android:layout_marginTop="5dp"
             android:text="Grad"
             android:textSize="30dp"
+            android:maxWidth="150dp"
+            android:scrollHorizontally="false"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/VrijemeIspada_CardViewTxt"

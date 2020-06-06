@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.cityinfrastrukturemanager.Model.IspadPrikaz;
 import com.example.cityinfrastrukturemanager.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -22,11 +23,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.jar.Pack200;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -38,7 +41,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private Boolean mLocationPermissionGranted = false;
     private FusedLocationProviderClient mFusedLocationProviderClient;
-    private FloatingActionButton floatingActionButton;
+    private boolean singleMarker = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,35 +69,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (mLocationPermissionGranted) {
             GetMyLocation();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 return;
             }
             mMap.setMyLocationEnabled(true);
         }
     }
 
+    private void GetLatLng()
+    {
+        ArrayList<IspadPrikaz>lIspadPrikaz = (ArrayList<IspadPrikaz>) getIntent().getSerializableExtra("ispadi");
+        LatLng latLng;
+        for(IspadPrikaz ispad : lIspadPrikaz)
+        {
+            double lat = ispad.getLat();
+            double lng = ispad.getLng();
+
+            latLng = new LatLng(lat, lng);
+            mMap.addMarker(new MarkerOptions().position(latLng));
+
+            if (lIspadPrikaz.size() == 1)
+            {
+                singleMarker=true;
+                MoveCamera(latLng);
+            }
+        }
+
+
+    }
+
     private void MoveCamera( LatLng latLng)
     {
         //mMap.addMarker(new MarkerOptions().position(latLng));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
 
     }
 
     private void InitMap()
     {
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
 
     public void GetMyLocation()
     {
+
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         try
@@ -109,7 +127,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                          {
                              Log.d(TAG, "onComplete: found location!");
                              Location currentLocation = (Location) task.getResult();
-                             MoveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                             GetLatLng();
+                             if(currentLocation !=null && singleMarker == false)
+                             {
+                                 MoveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                             }
+                             else if(currentLocation == null)
+                             {
+                                 Toast.makeText(MapsActivity.this, "Uključite GPS kako bi dohvatili vašu lokaciju", Toast.LENGTH_SHORT).show();
+                             }
+
                          }
                          else
                          {
@@ -148,6 +175,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         mLocationPermissionGranted = false;
@@ -168,6 +196,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
                 mLocationPermissionGranted = true;
+
                 InitMap();
             }
         }

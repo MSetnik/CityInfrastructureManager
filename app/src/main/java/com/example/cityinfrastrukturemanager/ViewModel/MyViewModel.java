@@ -5,6 +5,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 
 import com.example.cityinfrastrukturemanager.DatabaseConn.DbConn;
 import com.example.cityinfrastrukturemanager.Model.Ispad;
@@ -64,7 +65,15 @@ public class MyViewModel extends AndroidViewModel {
                 float lng = Float.parseFloat(jsonObject.get("lng").toString());
                 String zupanija = String.valueOf(jsonObject.get("zupanija"));
                 String pocetakIspada = jsonObject.get("pocetak_ispada").toString();
-                String krajIspada = jsonObject.get("kraj_ispada").toString();
+                String krajIspada;
+                if(jsonObject.get("kraj_ispada") == null)
+                {
+                    krajIspada = "";
+                }
+                else
+                {
+                    krajIspada = jsonObject.get("kraj_ispada").toString();
+                }
                 String opis = jsonObject.get("opis").toString();
 
                 IspadPrikaz ispadPrikaz = new IspadPrikaz(ispadID, ime, prezime, vrstaIspada, grad, lat, lng ,zupanija, pocetakIspada, krajIspada, opis);
@@ -74,7 +83,6 @@ public class MyViewModel extends AndroidViewModel {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
         return lIspadi;
     }
 
