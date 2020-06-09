@@ -1,6 +1,8 @@
 package com.example.cityinfrastrukturemanager.Adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,6 +52,7 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
         return holder;
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull IspadiViewHolder holder, int position) {
         IspadPrikaz ispadi = lIspadPrikaz.get(position);
@@ -60,26 +63,18 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
         String todayDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
         String date = ispadi.getKraj_ispada();
 
-
         Date date1 =stringToDate(todayDate, "yyyy-MM-dd HH:mm:ss.SSS");
         Date date2 = stringToDate(date,"yyyy-MM-dd HH:mm:ss.SSS");
 
-        if(date != "")
+        if(ispadi.getStatus().equals("NIJE RIJEŠENO"))
         {
-            if (date1.compareTo(date2) > 0) {
-                holder.stanjeIspada.setText("Rijeseno");
-                holder.stanjeIspada.setTextColor(ContextCompat.getColor(context,R.color.rijeseno));
-            }
-            else
-            {
-                holder.stanjeIspada.setText("Nije rijeseno");
-                holder.stanjeIspada.setTextColor(ContextCompat.getColor(context,R.color.nijerijeseno));
-            }
+            holder.stanjeIspada.setText(ispadi.getStatus());
+            holder.stanjeIspada.setTextColor(Color.parseColor("#FFCF1B0B"));
         }
         else
         {
-            holder.stanjeIspada.setText("Nije rijeseno");
-            holder.stanjeIspada.setTextColor(ContextCompat.getColor(context,R.color.nijerijeseno));
+            holder.stanjeIspada.setText(ispadi.getStatus());
+            holder.stanjeIspada.setTextColor(Color.parseColor("#FF2FBC08"));
         }
 
 

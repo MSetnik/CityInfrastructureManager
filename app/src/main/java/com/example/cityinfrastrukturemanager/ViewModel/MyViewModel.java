@@ -75,8 +75,9 @@ public class MyViewModel extends AndroidViewModel {
                     krajIspada = jsonObject.get("kraj_ispada").toString();
                 }
                 String opis = jsonObject.get("opis").toString();
+                String status = jsonObject.get("status").toString();
 
-                IspadPrikaz ispadPrikaz = new IspadPrikaz(ispadID, ime, prezime, vrstaIspada, grad, lat, lng ,zupanija, pocetakIspada, krajIspada, opis);
+                IspadPrikaz ispadPrikaz = new IspadPrikaz(ispadID, ime, prezime, vrstaIspada, grad, lat, lng ,zupanija, pocetakIspada, krajIspada, opis,status );
                 lIspadi.add(ispadPrikaz);
             }
 

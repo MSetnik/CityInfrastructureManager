@@ -14,8 +14,9 @@ public class IspadPrikaz implements Serializable {
     private String pocetak_ispada;
     private String kraj_ispada;
     private String opis;
+    private String status;
 
-    public IspadPrikaz(int id_ispad, String ime, String prezime, String vrstaIspada, String grad, float lat, float lng, String zupanija, String pocetak_ispada, String kraj_ispada, String opis) {
+    public IspadPrikaz(int id_ispad, String ime, String prezime, String vrstaIspada, String grad, float lat, float lng, String zupanija, String pocetak_ispada, String kraj_ispada, String opis, String status) {
         this.id_ispad = id_ispad;
         this.ime = ime;
         this.prezime = prezime;
@@ -27,6 +28,11 @@ public class IspadPrikaz implements Serializable {
         this.pocetak_ispada = pocetak_ispada;
         this.kraj_ispada = kraj_ispada;
         this.opis = opis;
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
     }
 
     public float getLat() {

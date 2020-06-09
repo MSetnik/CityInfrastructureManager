@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity  {
                 TextView vrijemeIspada = ispadDetaljiView.findViewById(R.id.prijavaProblemaVrijeme_ispad_detalji_CV);
                 TextView datumIspada = ispadDetaljiView.findViewById(R.id.prijavaProblemaDatum_ispad_detalji_CV);
                 Button maps = ispadDetaljiView.findViewById(R.id.btnMaps_ispad_detalji_CV);
-
+                Log.d(TAG, "onIspadClick: " + ispadiPrikaz.getStatus());
 
                /* Bundle bundle =  getIntent().getExtras();
                 ispadPrikaz = (IspadPrikaz) bundle.getSerializable("ispad");*/

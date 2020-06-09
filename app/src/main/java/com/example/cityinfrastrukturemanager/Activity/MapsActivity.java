@@ -100,7 +100,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void MoveCamera( LatLng latLng)
     {
         //mMap.addMarker(new MarkerOptions().position(latLng));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 8));
 
     }
 
