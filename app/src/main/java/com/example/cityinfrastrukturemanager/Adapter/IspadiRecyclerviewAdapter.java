@@ -32,7 +32,7 @@ import java.util.Date;
 
 public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecyclerviewAdapter.IspadiViewHolder> implements Filterable {
     private ArrayList<IspadPrikaz>lIspadPrikaz;
-    private ArrayList<IspadPrikaz>searchIspadPrikaz;
+    private ArrayList<IspadPrikaz>lIspadPrikazPun;
 
     private Context context;
     private IspadClickListener ispadClickListener;
@@ -40,7 +40,7 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
 
     public IspadiRecyclerviewAdapter (Context context,ArrayList<IspadPrikaz> lIspadPrikaz) {
         this.lIspadPrikaz = lIspadPrikaz;
-        this.searchIspadPrikaz = new ArrayList<>(lIspadPrikaz);
+        this.lIspadPrikazPun = new ArrayList<>(lIspadPrikaz);
         this.context = context;
     }
 
@@ -126,17 +126,18 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
     private Filter filter = new Filter() {
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
+            // radi na background threadu
             ArrayList<IspadPrikaz>filtriranPrikaz = new ArrayList<>();
 
             if(constraint == null ||constraint.length()==0)
             {
-                filtriranPrikaz.addAll(lIspadPrikaz);
+                filtriranPrikaz.addAll(lIspadPrikazPun);
             }
             else
             {
                 String filterPattern = constraint.toString().toLowerCase().trim();
 
-                for(IspadPrikaz prikaz : lIspadPrikaz)
+                for(IspadPrikaz prikaz : lIspadPrikazPun)
                 {
                     if(prikaz.getGrad().toLowerCase().contains(filterPattern))
                     {
@@ -152,8 +153,8 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            searchIspadPrikaz.clear();
-            searchIspadPrikaz.addAll((ArrayList) results.values);
+            lIspadPrikaz.clear();
+            lIspadPrikaz.addAll((ArrayList) results.values);
 
             notifyDataSetChanged();
         }

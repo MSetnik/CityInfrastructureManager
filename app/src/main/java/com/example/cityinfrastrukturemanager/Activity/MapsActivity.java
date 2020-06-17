@@ -42,6 +42,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Boolean mLocationPermissionGranted = false;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private boolean singleMarker = false;
+    private MarkerOptions markerkOptions = new MarkerOptions();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,8 +76,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    private void OnMapClick(final String vrstaIspada, final String opisIspada)
+    {
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                markerkOptions.title(vrstaIspada + " - " + opisIspada);
+            }
+        });
+    }
+
     private void GetLatLng()
     {
+
         ArrayList<IspadPrikaz>lIspadPrikaz = (ArrayList<IspadPrikaz>) getIntent().getSerializableExtra("ispadi");
         LatLng latLng;
         for(IspadPrikaz ispad : lIspadPrikaz)
@@ -85,17 +97,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             double lng = ispad.getLng();
 
             latLng = new LatLng(lat, lng);
-            mMap.addMarker(new MarkerOptions().position(latLng));
-
+            mMap.addMarker(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - "  + ispad.getOpis()));
             if (lIspadPrikaz.size() == 1)
             {
                 singleMarker=true;
                 MoveCamera(latLng);
             }
         }
-
-
     }
+
 
     private void MoveCamera( LatLng latLng)
     {

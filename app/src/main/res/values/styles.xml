@@ -17,4 +17,11 @@
         <item name="android:windowExitAnimation">@anim/slide_down</item>
     </style>
 
+    <style name="SearchView" parent="Widget.AppCompat.SearchView">
+        <item name="android:editTextColor">@color/textWhite</item>
+        <item name="android:textColorHint">@color/textWhite</item>
+        <item name="android:tint">@color/textWhite</item>
+        <item name="android:queryBackground">@color/textWhite</item>
+    </style>
+
 </resources>

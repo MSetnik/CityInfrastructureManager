@@ -13,21 +13,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/IspadiRecyclerView"
+        app:layout_constraintBottom_toTopOf="@id/tabs"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/IspadiRecyclerView"
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabs"
+        android:background="@color/RecyclerBackground"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
+        app:tabIndicatorColor="@color/colorSecondaryLight"
+        android:elevation="1dp"
         app:layout_constraintTop_toBottomOf="@id/toolbar_include"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/viewPager"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:listitem="@layout/main_activity_cardview_layout"
-        android:background="@color/RecyclerBackground"/>
+        app:layout_constraintRight_toRightOf="parent"/>
+
+   <androidx.viewpager.widget.ViewPager
+       android:id="@+id/viewPager"
+       android:layout_width="match_parent"
+       android:layout_height="0dp"
+       app:layout_constraintTop_toBottomOf="@id/tabs"
+       app:layout_constraintBottom_toBottomOf="parent"
+       app:layout_constraintLeft_toLeftOf="parent"
+       app:layout_constraintRight_toRightOf="parent">
+
+   </androidx.viewpager.widget.ViewPager>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/MapsFloatingButton"
@@ -38,8 +49,7 @@
         android:layout_margin="20dp"
         android:src="@drawable/ic_map_white"
         app:backgroundTint="@color/black"
-        android:outlineAmbientShadowColor="@color/colorSecondaryDark"/>
-
+       />
 
 
 

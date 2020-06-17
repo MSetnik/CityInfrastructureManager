@@ -6,7 +6,8 @@
     android:orientation="horizontal"
     android:background="@color/colorPrimary"
     android:elevation="4dp"
-    android:id="@+id/Toolbar">
+    android:id="@+id/Toolbar"
+    android:theme="@style/SearchView">
 
 
 

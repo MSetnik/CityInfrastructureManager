@@ -3,6 +3,7 @@ package com.example.cityinfrastrukturemanager.DatabaseConn;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.example.cityinfrastrukturemanager.Model.Grad;
 import com.example.cityinfrastrukturemanager.Model.Ispad;
@@ -81,6 +82,7 @@ public class DbConn extends AsyncTask<Void, Void, String> {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+            return "Greška prilikom dohvaćanja podataka sa servera";
         }
 
         return null;
@@ -89,6 +91,7 @@ public class DbConn extends AsyncTask<Void, Void, String> {
     @Override
     protected void onPostExecute(String result) {
         String uspjeh ="Uspjeh";
+
     }
 
 
