@@ -14,7 +14,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.cityinfrastrukturemanager.Model.Ispad;
 import com.example.cityinfrastrukturemanager.Model.IspadPrikaz;
+import com.example.cityinfrastrukturemanager.Model.NajbliziIspad;
 import com.example.cityinfrastrukturemanager.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -29,6 +31,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.jar.Pack200;
 
@@ -42,7 +46,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Boolean mLocationPermissionGranted = false;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private boolean singleMarker = false;
-    private MarkerOptions markerkOptions = new MarkerOptions();
+    private Location currentLocation;
+    private Marker mClosestMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,21 +81,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private void OnMapClick(final String vrstaIspada, final String opisIspada)
+    private NajbliziIspad GetClosestMarker(IspadPrikaz ispad)
     {
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                markerkOptions.title(vrstaIspada + " - " + opisIspada);
-            }
-        });
+        Location markerLocation = new Location("marker");
+        markerLocation.setLatitude(ispad.getLat());
+        markerLocation.setLongitude(ispad.getLng());
+
+        float udaljenost = currentLocation.distanceTo(markerLocation)/1000;
+        NajbliziIspad najbliziIspad = new NajbliziIspad();
+        najbliziIspad.setIspadPrikaz(ispad);
+        najbliziIspad.setUdaljenost(udaljenost);
+
+        return najbliziIspad;
+    }
+
+
+    private void MoveCamera( LatLng latLng)
+    {
+        //mMap.addMarker(new MarkerOptions().position(latLng));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 8));
+
     }
 
     private void GetLatLng()
     {
-
+        double najmanjaUdaljenost = 1E38; //
         ArrayList<IspadPrikaz>lIspadPrikaz = (ArrayList<IspadPrikaz>) getIntent().getSerializableExtra("ispadi");
         LatLng latLng;
+        NajbliziIspad najbliziIspad = new NajbliziIspad();
+
         for(IspadPrikaz ispad : lIspadPrikaz)
         {
             double lat = ispad.getLat();
@@ -103,16 +122,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 singleMarker=true;
                 MoveCamera(latLng);
             }
+
+            NajbliziIspad ispad2 = GetClosestMarker(ispad);
+            if (najmanjaUdaljenost>ispad2.getUdaljenost())
+            {
+                najmanjaUdaljenost = ispad2.getUdaljenost();
+                najbliziIspad = ispad2;
+
+            }
         }
+        //kamera pokazuje lokaciju najblizeg markera
+        MoveCamera(new LatLng(najbliziIspad.getIspadPrikaz().getLat(), najbliziIspad.getIspadPrikaz().getLng()));
+        Log.d(TAG, "GetLatLng: najblizi ispad " + najbliziIspad.getIspadPrikaz().getGrad());
     }
 
-
-    private void MoveCamera( LatLng latLng)
-    {
-        //mMap.addMarker(new MarkerOptions().position(latLng));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 8));
-
-    }
 
     private void InitMap()
     {
@@ -136,11 +159,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                          if(task.isSuccessful())
                          {
                              Log.d(TAG, "onComplete: found location!");
-                             Location currentLocation = (Location) task.getResult();
-                             GetLatLng();
+                             currentLocation = (Location) task.getResult();
+
                              if(currentLocation !=null && singleMarker == false)
                              {
-                                 MoveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                                 GetLatLng();
+
+                                 // Kamera pokazuje moju trenutnu lokaciju
+                                 //MoveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                              }
                              else if(currentLocation == null)
                              {
