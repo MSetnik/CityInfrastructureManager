@@ -36,12 +36,13 @@ import com.example.cityinfrastrukturemanager.ViewModel.MyViewModel;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
 public class RijeseniIspadiFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    private ArrayList<IspadPrikaz> lRijeseniIspadi;
+    private ArrayList<IspadPrikaz> lRijeseniIspadi = new ArrayList<>();
     private RecyclerView recyclerView;
     private AlertDialog.Builder dialogBuilder;
     private Dialog dialog;
@@ -51,16 +52,12 @@ public class RijeseniIspadiFragment extends Fragment implements SwipeRefreshLayo
     private MyViewModel viewModel;
     private SwipeRefreshLayout swipeLayout;
 
-    public  RijeseniIspadiFragment(ArrayList<IspadPrikaz> ispadi)
-    {
-        this.lRijeseniIspadi = ispadi;
-    }
-
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(getActivity()).get(MyViewModel.class);
+        this.lRijeseniIspadi = viewModel.DohvatiRijeseneIspade();
     }
 
     @Override
@@ -107,7 +104,6 @@ public class RijeseniIspadiFragment extends Fragment implements SwipeRefreshLayo
 
     @Override
     public void onRefresh() {
-        viewModel = new ViewModelProvider(getActivity()).get(MyViewModel.class);
         viewModel.DohvatiRijeseneIspade();
         if (viewModel.DohvatiRijeseneIspade().isEmpty())
         {

@@ -45,7 +45,7 @@ import java.util.Date;
 
 public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = "MyApp";
-    private ArrayList<IspadPrikaz> lIspadi;
+    private ArrayList<IspadPrikaz> lIspadi = new ArrayList<>();
     private RecyclerView recyclerView;
     private AlertDialog.Builder dialogBuilder;
     private Dialog dialog;
@@ -56,15 +56,13 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
     SwipeRefreshLayout swipeLayout;
     private static final int ERROR_DIALOG_REQUEST = 9001;
 
-    public TrenutniIspadiFragment(ArrayList<IspadPrikaz> ispadi)
-    {
-        this.lIspadi = ispadi;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(getActivity()).get(MyViewModel.class);
+        this.lIspadi = viewModel.DohvatiTrenutneIspade();
     }
 
     @Override
@@ -108,7 +106,6 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
 
     @Override
     public void onRefresh() {
-        viewModel = new ViewModelProvider(getActivity()).get(MyViewModel.class);
         viewModel.DohvatiTrenutneIspade();
         if (viewModel.DohvatiTrenutneIspade().isEmpty())
         {

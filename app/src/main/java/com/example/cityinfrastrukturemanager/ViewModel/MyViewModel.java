@@ -34,10 +34,6 @@ public class MyViewModel extends AndroidViewModel {
     ///Context is Application instead context because view model can outlive activity (memory leak)
     public MyViewModel(@NonNull Application application) {
         super(application);
-
-        //DohvatiRijeseneIspade();
-        //DohvatiTrenutneIspade();
-        //DohvatiSveIspade();
     }
 
 

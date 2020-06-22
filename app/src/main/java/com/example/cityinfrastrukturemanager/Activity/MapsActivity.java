@@ -4,12 +4,17 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -41,11 +46,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
+    private Handler h;
 
     private GoogleMap mMap;
     private Boolean mLocationPermissionGranted = false;
     private FusedLocationProviderClient mFusedLocationProviderClient;
-    private boolean singleMarker = false;
     private Location currentLocation;
     private Marker mClosestMarker;
 
@@ -53,8 +58,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-
         GetLocationPermission();
     }
 
@@ -78,6 +81,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return;
             }
             mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setCompassEnabled(true);
+            mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+                @Override
+                public boolean onMyLocationButtonClick() {
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom( new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),8));
+                    return true;
+                }
+            });
         }
     }
 
@@ -94,6 +105,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         return najbliziIspad;
     }
+
 
 
     private void MoveCamera( LatLng latLng)
@@ -119,7 +131,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.addMarker(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - "  + ispad.getOpis()));
             if (lIspadPrikaz.size() == 1)
             {
-                singleMarker=true;
                 MoveCamera(latLng);
             }
 
@@ -161,12 +172,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                              Log.d(TAG, "onComplete: found location!");
                              currentLocation = (Location) task.getResult();
 
-                             if(currentLocation !=null && singleMarker == false)
+
+                             if(currentLocation !=null)
                              {
                                  GetLatLng();
-
-                                 // Kamera pokazuje moju trenutnu lokaciju
-                                 //MoveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                              }
                              else if(currentLocation == null)
                              {
@@ -188,6 +197,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    //provjeravaju se dozvole za pristup gpsu
     public void GetLocationPermission()
     {
         String[] permission = {Manifest.permission.ACCESS_FINE_LOCATION,
@@ -198,6 +208,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if(ContextCompat.checkSelfPermission(this.getApplicationContext(), COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
             {
                 mLocationPermissionGranted = true;
+                GetMyLocation();
                 InitMap();
             }
             else
@@ -224,15 +235,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 {
                     for(int i = 0;i<grantResults.length;i++)
                     {
-                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED)
+                        if(grantResults[i] == PackageManager.PERMISSION_GRANTED)
                         {
-                            mLocationPermissionGranted = false;
+                            mLocationPermissionGranted = true;
+                            GetLocationPermission();
                             return;
                         }
                     }
                 }
-                mLocationPermissionGranted = true;
 
+                mLocationPermissionGranted = false;
                 InitMap();
             }
         }

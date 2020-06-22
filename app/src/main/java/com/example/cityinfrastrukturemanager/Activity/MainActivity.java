@@ -64,10 +64,7 @@ import static android.view.KeyEvent.KEYCODE_BACK;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MyApp";
-    private android.widget.SearchView searchView;
     private FloatingActionButton floatingButton;
-    private ArrayList<IspadPrikaz> lTrenutniIspadi = new ArrayList<>();
-    private ArrayList<IspadPrikaz>lRijeseniIspadi = new ArrayList<>();
     private ArrayList<IspadPrikaz> lSviIspadi = new ArrayList<>();
     private MyViewModel viewModel;
     private Dialog dialog;
@@ -112,20 +109,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private ArrayList<IspadPrikaz> DohvatiTrenutneIspade()
-    {
-        lTrenutniIspadi = viewModel.DohvatiTrenutneIspade();
-        return lTrenutniIspadi;
-
-    }
-
-    private ArrayList<IspadPrikaz> DohvatiRijeseneIspade()
-    {
-        lRijeseniIspadi = viewModel.DohvatiRijeseneIspade();
-        return lRijeseniIspadi;
-    }
-
-
     public boolean IsServicesOK()
     {
         Log.d(TAG, "IsServicesOK: Checking google services ver.");
@@ -156,8 +139,9 @@ public class MainActivity extends AppCompatActivity {
 
         ArrayList<Fragment> list = new ArrayList<>();
         ArrayList<String>lFragmentTitle = new ArrayList<>();
-        list.add(new TrenutniIspadiFragment(viewModel.DohvatiTrenutneIspade()));
-        list.add(new RijeseniIspadiFragment(viewModel.DohvatiRijeseneIspade()));
+
+        list.add(new TrenutniIspadiFragment());
+        list.add(new RijeseniIspadiFragment());
 
         lFragmentTitle.add("Trenutni ispadi");
         lFragmentTitle.add("Riješeni ispadi");
