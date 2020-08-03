@@ -1,47 +1,60 @@
 package com.example.cityinfrastrukturemanager.Activity;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.content.Intent;
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.cityinfrastrukturemanager.Model.Ispad;
 import com.example.cityinfrastrukturemanager.Model.IspadPrikaz;
 import com.example.cityinfrastrukturemanager.Model.NajbliziIspad;
+import com.example.cityinfrastrukturemanager.Model.SifrarnikVrstaIspada;
+import com.example.cityinfrastrukturemanager.Model.Zupanija;
 import com.example.cityinfrastrukturemanager.R;
+import com.example.cityinfrastrukturemanager.ViewModel.MyViewModel;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.lang.reflect.Array;
-import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.jar.Pack200;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, DatePickerDialog.OnDateSetListener {
     private static final String TAG = "MyApp";
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
@@ -52,13 +65,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Boolean mLocationPermissionGranted = false;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private Location currentLocation;
-    private Marker mClosestMarker;
+
+    private TextView txtPocetak;
+    private TextView pocetakPicker;
+    private TextView txtKraj;
+    private TextView krajPicker;
+    private int dateIntHelper;
+    private Button filterBtn;
+    private Spinner spinnerIspad;
+    private Spinner spinnerZupanija;
+    ArrayList<IspadPrikaz> lIspadPrikaz;
+    private MyViewModel viewModel;
+    private ArrayList<Zupanija>lZupanije;
+    private ArrayList<SifrarnikVrstaIspada>lVrsteIspada;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         GetLocationPermission();
+        viewModel = new ViewModelProvider(this,ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(MyViewModel.class);
+        this.lZupanije = viewModel.DohvatiZupanije();
+        this.lVrsteIspada = viewModel.DohvatiVrsteIspade();
     }
 
 
@@ -76,7 +104,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         if (mLocationPermissionGranted) {
-            GetMyLocation();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
@@ -85,20 +112,65 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                 @Override
                 public boolean onMyLocationButtonClick() {
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom( new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),8));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 8));
                     return true;
                 }
             });
         }
+        lIspadPrikaz = (ArrayList<IspadPrikaz>) getIntent().getSerializableExtra("ispadi");
+
+        Button activityFilterButton = findViewById(R.id.button);
+        activityFilterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create();
+                final View ispadDetaljiView = getLayoutInflater().inflate(R.layout.filter_dialog_trenutni_ispadi, null);
+                alertDialog.setView(ispadDetaljiView);
+                alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                alertDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                alertDialog.show();
+
+                spinnerZupanija = ispadDetaljiView.findViewById(R.id.spinnerZupanije);
+                spinnerIspad = ispadDetaljiView.findViewById(R.id.spinnerIspad);
+                ArrayAdapter<Zupanija> adapterSpinnerZupanije = new ArrayAdapter<Zupanija>(MapsActivity.this , android.R.layout.simple_spinner_item, lZupanije);
+                ArrayAdapter<SifrarnikVrstaIspada>adapterSpinnerVrstaIspada = new ArrayAdapter<SifrarnikVrstaIspada>(getApplicationContext(), android.R.layout.simple_spinner_item, lVrsteIspada);
+
+                adapterSpinnerZupanije.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                adapterSpinnerVrstaIspada.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerZupanija.setAdapter(adapterSpinnerZupanije);
+                spinnerIspad.setAdapter(adapterSpinnerVrstaIspada);
+
+
+                txtPocetak = ispadDetaljiView.findViewById(R.id.fdTxtPocetak);
+                pocetakPicker = ispadDetaljiView.findViewById(R.id.fdPickerPocetak);
+                filterBtn = ispadDetaljiView.findViewById(R.id.filterBtn);
+
+                pocetakPicker.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dateIntHelper = 0;
+                        ShowDatePickerDialog();
+
+                    }
+                });
+                filterBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        GetLatLng(FilterLogic(spinnerZupanija, spinnerIspad,pocetakPicker,lIspadPrikaz));
+                        alertDialog.dismiss();
+                    }
+                });
+            }
+        });
+
     }
 
-    private NajbliziIspad GetClosestMarker(IspadPrikaz ispad)
-    {
+    private NajbliziIspad GetClosestMarker(IspadPrikaz ispad) {
         Location markerLocation = new Location("marker");
         markerLocation.setLatitude(ispad.getLat());
         markerLocation.setLongitude(ispad.getLng());
 
-        float udaljenost = currentLocation.distanceTo(markerLocation)/1000;
+        float udaljenost = currentLocation.distanceTo(markerLocation) / 1000;
         NajbliziIspad najbliziIspad = new NajbliziIspad();
         najbliziIspad.setIspadPrikaz(ispad);
         najbliziIspad.setUdaljenost(udaljenost);
@@ -107,118 +179,293 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-
-    private void MoveCamera( LatLng latLng)
-    {
+    private void MoveCamera(LatLng latLng) {
         //mMap.addMarker(new MarkerOptions().position(latLng));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 8));
 
     }
 
-    private void GetLatLng()
-    {
-        double najmanjaUdaljenost = 1E38; //
-        ArrayList<IspadPrikaz>lIspadPrikaz = (ArrayList<IspadPrikaz>) getIntent().getSerializableExtra("ispadi");
+    private void GetLatLng(ArrayList<IspadPrikaz>lIspadi) {
+        mMap.clear();
+        double najmanjaUdaljenost = 1E38; // veliki broj
+        ArrayList<IspadPrikaz> lIspadPrikaz = lIspadi;
+        ArrayList<IspadPrikaz>sLocation = new ArrayList<>();
         LatLng latLng;
         NajbliziIspad najbliziIspad = new NajbliziIspad();
+        NajbliziIspad ispad2;
+        Set<IspadPrikaz> setIspad = new HashSet<>();
 
-        for(IspadPrikaz ispad : lIspadPrikaz)
+
+//        for (IspadPrikaz ispadPrikaz : lIspadPrikaz) {
+//            helper = 0;
+//            for (IspadPrikaz ispadPrikaz1 : lIspadPrikaz) {
+//
+//                if (ispadPrikaz.getLat() == ispadPrikaz1.getLat() && ispadPrikaz.getLng() == ispadPrikaz1.getLng()) {
+////                    sLocation.add(ispadPrikaz1);
+//                    helper++;
+//                }
+//                if (helper > 1) {
+////                    ispadPrikaz.setLat((ispadPrikaz1.getLat() + ispadValue));
+//                    setIspad.add(ispadPrikaz);
+//                    Log.d(TAG, "GetLatLng: " + helper + "   " + setIspad.size());
+//
+////                    Log.d(TAG, "GetLatLng: lat lgng helper " + ispadPrikaz.getGrad());
+////                    Log.d(TAG, "GetLatLng: " + (ispadPrikaz.getLat() + ispadValue));
+////                    ispadPrikaz.setLat((ispadPrikaz.getLat() + ispadValue));
+////                    sLocation.add(ispadPrikaz);
+////                    Log.d(TAG, "GetLatLng: ispad get lat " + ispadPrikaz.getLat());
+//                }
+//            }
+//        }
+
+
+
+        for (IspadPrikaz ispad : lIspadPrikaz)
         {
+            Log.d(TAG, "GetLatLng:  sLocation " + ispad.getGrad() + "   " + ispad.getLat());
             double lat = ispad.getLat();
             double lng = ispad.getLng();
-
             latLng = new LatLng(lat, lng);
-            mMap.addMarker(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - "  + ispad.getOpis()));
-            if (lIspadPrikaz.size() == 1)
+
+
+            if (ispad.getVrstaIspada().equals("Nestanak električne energije"))
             {
+                BitmapDescriptor markerIcon = vectorToBitmap(R.drawable.ic_baseline_power_off_24);
+
+                mMap.addMarker(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - " + ispad.getOpis()).icon(markerIcon));
+            }
+            if (ispad.getVrstaIspada().equals("Prekid prometa"))
+            {
+                BitmapDescriptor markerIcon = vectorToBitmap(R.drawable.ic_baseline_directions_car_24);
+                mMap.addMarker(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - " + ispad.getOpis()).icon(markerIcon));
+            }
+            if (ispad.getVrstaIspada().equals("Nestanak vode"))
+            {
+                BitmapDescriptor markerIcon = vectorToBitmap(R.drawable.ic_baseline_waves_24);
+                mMap.addMarker(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - " + ispad.getOpis()).icon(markerIcon));
+            }
+            if (ispad.getVrstaIspada().equals("Nestanak plina"))
+            {
+                BitmapDescriptor markerIcon = vectorToBitmap(R.drawable.ic_nestanak_plina);
+                mMap.addMarker(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - " + ispad.getOpis()).icon(markerIcon));
+            }
+
+//            if (ispad.getStatus().equals("RIJEŠENO")) {
+//                marker.add(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - " + ispad.getOpis()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+////                mMap.addMarker(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - " + ispad.getOpis()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+//            } else {
+//                ispad2 = GetClosestMarker(ispad);
+////                mMap.addMarker(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - " + ispad.getOpis()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+//                marker.add(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - " + ispad.getOpis()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+//
+//            }
+
+
+            if (lIspadPrikaz.size() == 1) {
                 MoveCamera(latLng);
             }
 
-            NajbliziIspad ispad2 = GetClosestMarker(ispad);
-            if (najmanjaUdaljenost>ispad2.getUdaljenost())
-            {
+            ispad2 = GetClosestMarker(ispad);
+            if (najmanjaUdaljenost > ispad2.getUdaljenost()) {
                 najmanjaUdaljenost = ispad2.getUdaljenost();
                 najbliziIspad = ispad2;
 
             }
         }
+
+
+        if(najbliziIspad.getIspadPrikaz() != null)
+        {
+            MoveCamera(new LatLng(najbliziIspad.getIspadPrikaz().getLat(), najbliziIspad.getIspadPrikaz().getLng()));
+            Log.d(TAG, "GetLatLng: najblizi ispad " + najbliziIspad.getIspadPrikaz().getGrad());
+        }
         //kamera pokazuje lokaciju najblizeg markera
-        MoveCamera(new LatLng(najbliziIspad.getIspadPrikaz().getLat(), najbliziIspad.getIspadPrikaz().getLng()));
-        Log.d(TAG, "GetLatLng: najblizi ispad " + najbliziIspad.getIspadPrikaz().getGrad());
+
+    }
+
+    public ArrayList<IspadPrikaz> FilterLogic(Spinner spinnerZupanija, Spinner spinnerVrstaIspada, TextView datumPocetak, ArrayList<IspadPrikaz>lIspadPrikaz) {
+
+
+        ArrayList<IspadPrikaz> filter = new ArrayList<>();
+
+
+        String dateReversePocetak = datumPocetak.getText().toString();
+
+
+        if (!datumPocetak.getText().toString().equals("Odaberite datum")) {
+            String date = datumPocetak.getText().toString();
+            String date1 = date.replaceAll("[.]", "");
+            dateReversePocetak = ReverseDate(date1);
+
+        }
+
+        for (IspadPrikaz ispadPrikaz : lIspadPrikaz) {
+            String pocetakIspada = GetDate(ispadPrikaz.getPocetak_ispada());
+            pocetakIspada = pocetakIspada.replaceAll("[.]", "");
+            String krajIspada = "99999999";
+            Log.d(TAG, "FilterLogic: kraj ispada " + ispadPrikaz.getKraj_ispada());
+            if(!ispadPrikaz.getKraj_ispada().equals(""))
+            {
+                krajIspada = GetDate(ispadPrikaz.getKraj_ispada());
+                krajIspada = krajIspada.replaceAll("[.]", "");
+            }
+
+
+            if (!datumPocetak.getText().toString().equals("Odaberite datum")  && !spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && !spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
+                if (spinnerZupanija.getSelectedItem().toString().equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.getSelectedItem().toString().equals(ispadPrikaz.getVrstaIspada()) && Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(ispadPrikaz.getPocetak_ispada()))) {
+
+                    Log.d(TAG, "FilterLogic: if 1 ");
+                    filter.add(ispadPrikaz);
+
+                }
+            } else if (datumPocetak.getText().toString().equals("Odaberite datum")  && !spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && !spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
+                if ( spinnerZupanija.getSelectedItem().toString().equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.getSelectedItem().toString().equals(ispadPrikaz.getVrstaIspada())) {
+                    filter.add(ispadPrikaz);
+                }
+
+            } else if (!datumPocetak.getText().toString().equals("Odaberite datum") && !spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && !spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && spinnerZupanija.getSelectedItem().toString().equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.getSelectedItem().toString().equals(ispadPrikaz.getVrstaIspada())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (!datumPocetak.getText().toString().equals("Odaberite datum") && spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && !spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && Integer.parseInt(dateReversePocetak) >= Integer.parseInt(ReverseDate(pocetakIspada)) && spinnerVrstaIspada.getSelectedItem().toString().equals(ispadPrikaz.getVrstaIspada())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (!datumPocetak.getText().toString().equals("Odaberite datum") && !spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada))&& spinnerZupanija.getSelectedItem().toString().equals(ispadPrikaz.getZupanija())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (datumPocetak.getText().toString().equals("Odaberite datum")  && !spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && !spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
+                if (spinnerVrstaIspada.getSelectedItem().toString().equals(ispadPrikaz.getVrstaIspada()) && spinnerZupanija.getSelectedItem().toString().equals(ispadPrikaz.getZupanija())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (datumPocetak.getText().toString().equals("Odaberite datum")  && spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && !spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
+                if ( spinnerVrstaIspada.getSelectedItem().toString().equals(ispadPrikaz.getVrstaIspada())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (datumPocetak.getText().toString().equals("Odaberite datum")  && !spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
+                if ( spinnerZupanija.getSelectedItem().toString().equals(ispadPrikaz.getZupanija())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (!datumPocetak.getText().toString().equals("Odaberite datum")  && spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && !spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && spinnerVrstaIspada.getSelectedItem().toString().equals(ispadPrikaz.getVrstaIspada())) {
+                    Log.d(TAG, "FilterLogic:  pocetak ispada ");
+                    filter.add(ispadPrikaz);
+                }
+            } else if (!datumPocetak.getText().toString().equals("Odaberite datum")  && !spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && spinnerZupanija.getSelectedItem().toString().equals(ispadPrikaz.getZupanija())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (!datumPocetak.getText().toString().equals("Odaberite datum")  && spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada))) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (datumPocetak.getText().toString().equals("Odaberite datum") && !spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
+                if (spinnerZupanija.getSelectedItem().toString().equals(ispadPrikaz.getZupanija())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (datumPocetak.getText().toString().equals("Odaberite datum")  && spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && !spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
+                if (spinnerVrstaIspada.getSelectedItem().toString().equals(ispadPrikaz.getVrstaIspada())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else {
+                filter = lIspadPrikaz;
+            }
+
+        }
+
+        return filter;
+    }
+
+    private void ShowDatePickerDialog()
+    {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, this, Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH), Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.show();
+    }
+
+    private String ReverseDate(String date)
+    {
+        String godina = date.substring(4,8);
+        String mjesec = date.substring(2,4);
+        String dan = date.substring(0,2);
+        String strDate = godina+mjesec+dan;//datetime.substring(0,11);
+        return strDate;
     }
 
 
-    private void InitMap()
-    {
+    private BitmapDescriptor vectorToBitmap(@DrawableRes int id) {
+        Drawable vectorDrawable = ResourcesCompat.getDrawable(getResources(), id, null);
+        assert vectorDrawable != null;
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
+    public static String GetDate(String datetime) {
+        String godina = datetime.substring(0,4);
+        String mjesec = datetime.substring(5,7);
+        String dan = datetime.substring(8,10);
+        String strDate = dan+"."+mjesec+"."+godina;
+        return strDate;
+    }
+
+
+    private void InitMap() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
 
-    public void GetMyLocation()
-    {
+    public void GetMyLocation() {
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        try
-        {
-            if(mLocationPermissionGranted)
-            {
+        try {
+            if (mLocationPermissionGranted) {
                 Task location = mFusedLocationProviderClient.getLastLocation();
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
-                         if(task.isSuccessful())
-                         {
-                             Log.d(TAG, "onComplete: found location!");
-                             currentLocation = (Location) task.getResult();
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "onComplete: found location!");
+                            currentLocation = (Location) task.getResult();
 
 
-                             if(currentLocation !=null)
-                             {
-                                 GetLatLng();
-                             }
-                             else if(currentLocation == null)
-                             {
-                                 Toast.makeText(MapsActivity.this, "Uključite GPS kako bi dohvatili vašu lokaciju", Toast.LENGTH_SHORT).show();
-                             }
+                            if (currentLocation != null) {
+                                GetLatLng(lIspadPrikaz);
+                            } else if (currentLocation == null) {
+                                Toast.makeText(MapsActivity.this, "Uključite GPS kako bi dohvatili vašu lokaciju", Toast.LENGTH_SHORT).show();
+                            }
 
-                         }
-                         else
-                         {
-                             Log.d(TAG, "onComplete: current location is null");
-                             Toast.makeText(MapsActivity.this, "Greška prilikom dohvaćanja lokacije", Toast.LENGTH_SHORT).show();
-                         }
+                        } else {
+                            Log.d(TAG, "onComplete: current location is null");
+                            Toast.makeText(MapsActivity.this, "Greška prilikom dohvaćanja lokacije", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
             }
-        } catch(SecurityException e)
-        {
+        } catch (SecurityException e) {
             Log.d(TAG, "getDeviceLocation: SecurityException: " + e.getMessage());
         }
     }
 
     //provjeravaju se dozvole za pristup gpsu
-    public void GetLocationPermission()
-    {
+    public void GetLocationPermission() {
         String[] permission = {Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION};
+                Manifest.permission.ACCESS_COARSE_LOCATION};
 
-        if(ContextCompat.checkSelfPermission(this.getApplicationContext(),  FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-        {
-            if(ContextCompat.checkSelfPermission(this.getApplicationContext(), COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-            {
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this.getApplicationContext(), COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mLocationPermissionGranted = true;
                 GetMyLocation();
                 InitMap();
-            }
-            else
-            {
+            } else {
                 ActivityCompat.requestPermissions(this, permission, LOCATION_PERMISSION_REQUEST_CODE);
             }
-        }
-        else
-        {
-            ActivityCompat.requestPermissions(this, permission, LOCATION_PERMISSION_REQUEST_CODE );
+        } else {
+            ActivityCompat.requestPermissions(this, permission, LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
 
@@ -227,16 +474,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         mLocationPermissionGranted = false;
 
-        switch (requestCode)
-        {
-            case LOCATION_PERMISSION_REQUEST_CODE :
-            {
-                if(grantResults.length > 0)
-                {
-                    for(int i = 0;i<grantResults.length;i++)
-                    {
-                        if(grantResults[i] == PackageManager.PERMISSION_GRANTED)
-                        {
+        switch (requestCode) {
+            case LOCATION_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0) {
+                    for (int i = 0; i < grantResults.length; i++) {
+                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                             mLocationPermissionGranted = true;
                             GetLocationPermission();
                             return;
@@ -247,6 +489,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mLocationPermissionGranted = false;
                 InitMap();
             }
+        }
+    }
+
+    @Override
+    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+        DecimalFormat df = new DecimalFormat("00");
+        int dan = day;
+        int mon = month + 1;
+        String sDan = df.format(dan);
+        String mont = df.format(mon);
+
+
+        String date = sDan + "." + mont + "."+ year;
+        SetDate(date);
+    }
+
+    public void SetDate(String date)
+    {
+        if(dateIntHelper == 0)
+        {
+            pocetakPicker.setText(date);
+        }
+        else
+        {
+            krajPicker.setText(date);
         }
     }
 }

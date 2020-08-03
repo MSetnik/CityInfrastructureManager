@@ -1,5 +1,7 @@
 package com.example.cityinfrastrukturemanager.Model;
 
+import androidx.annotation.NonNull;
+
 public class SifrarnikVrstaIspada {
     private int ID_vrsta_ispada;
     private String vrsta_ispada;
@@ -23,5 +25,11 @@ public class SifrarnikVrstaIspada {
 
     public void setVrsta_ispada(String vrsta_ispada) {
         this.vrsta_ispada = vrsta_ispada;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return vrsta_ispada;
     }
 }

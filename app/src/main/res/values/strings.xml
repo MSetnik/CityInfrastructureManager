@@ -5,4 +5,15 @@
     <string name="title_activity_maps">Map</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="odaberite_datum">Odaberite datum</string>
+    <string name="odaberite_zupaniju">Odaberite županiju</string>
+    <string name="odaberite_ispad">Odaberite ispad</string>
+    <string name="nestanak_elektricne_energije">Nestanak električne energije</string>
+    <string name="nestanak_plina">Nestanak plina</string>
+    <string name="nestanak_vode">Nestanak vode</string>
+    <string name="prekid_prometa">Prekid prometa</string>
+    <string name="informacije_o_bojama">Informacije o bojama</string>
+    <string name="pocetak_ispada">Početak ispada</string>
+    <string name="kraj_ispada">Kraj ispada</string>
+    <string name="filter">Filter</string>
 </resources>

@@ -1,22 +1,19 @@
 package com.example.cityinfrastrukturemanager.ViewModel;
 
 import android.app.Application;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
 
 import com.example.cityinfrastrukturemanager.DatabaseConn.DbConn;
-import com.example.cityinfrastrukturemanager.Model.Ispad;
 import com.example.cityinfrastrukturemanager.Model.IspadPrikaz;
+import com.example.cityinfrastrukturemanager.Model.SifrarnikVrstaIspada;
+import com.example.cityinfrastrukturemanager.Model.Zupanija;
 
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
@@ -26,6 +23,8 @@ public class MyViewModel extends AndroidViewModel {
     private String json ="";
     private ArrayList<IspadPrikaz>lTrenutniIspadi = new ArrayList<>();
     private ArrayList<IspadPrikaz>lSviIspadi = new ArrayList<>();
+    private ArrayList<Zupanija>lZupanije = new ArrayList<>();
+    private ArrayList<SifrarnikVrstaIspada> lVrsteIspada = new ArrayList<>();
     private JSONParser jsonParser = new JSONParser();
     private static final String TAG = "MyApp";
     private int errorCounter = 0;
@@ -220,6 +219,99 @@ public class MyViewModel extends AndroidViewModel {
             }
         }
         return lSviIspadi;
+    }
+
+
+    public ArrayList<Zupanija> DohvatiZupanije()
+    {
+        dbConn = new DbConn(getApplication(),"prikazi_zupanije_android" );
+
+        try {
+            json = dbConn.execute().get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return SpremiZupanije();
+
+    }
+
+    private ArrayList<Zupanija> SpremiZupanije()
+    {
+        lZupanije.clear();
+        Zupanija zupanija = new Zupanija(0, "Sve županije");
+        lZupanije.add(zupanija);
+        try {
+            JSONArray jsonArray=(JSONArray) jsonParser.parse(json);
+
+            for (int i=0;i<jsonArray.size();i++)
+            {
+                //korištena druga biblioteka (json-simple) pa je zato dugacak naziv
+                org.json.simple.JSONObject jsonObject = (org.json.simple.JSONObject) jsonArray.get(i);
+                int IDzupanije = Integer.parseInt(String.valueOf(jsonObject.get("id_zupanija")));
+                String nazivZupanije = String.valueOf(jsonObject.get("naziv_zupanije"));
+
+                Zupanija zupanija2 = new Zupanija(IDzupanije,nazivZupanije);
+                lZupanije.add(zupanija2);
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            if (errorCounter == 0)
+            {
+                Toast.makeText(getApplication(), greška, Toast.LENGTH_LONG).show();
+                errorCounter++;
+            }
+        }
+        return lZupanije;
+    }
+
+
+
+    public ArrayList<SifrarnikVrstaIspada> DohvatiVrsteIspade()
+    {
+        dbConn = new DbConn(getApplication(),"prikazi_vrste_ispada_android" );
+
+        try {
+            json = dbConn.execute().get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return SpremiVrsteIspada();
+
+    }
+
+    private ArrayList<SifrarnikVrstaIspada> SpremiVrsteIspada()
+    {
+        lVrsteIspada.clear();
+        SifrarnikVrstaIspada sifrarnikVrstaIspada = new SifrarnikVrstaIspada(0, "Svi ispadi");
+        lVrsteIspada.add(sifrarnikVrstaIspada);
+        try {
+            JSONArray jsonArray=(JSONArray) jsonParser.parse(json);
+
+            for (int i=0;i<jsonArray.size();i++)
+            {
+                //korištena druga biblioteka (json-simple) pa je zato dugacak naziv
+                org.json.simple.JSONObject jsonObject = (org.json.simple.JSONObject) jsonArray.get(i);
+                int vrstaIspadaID = Integer.parseInt(jsonObject.get("id_vrsta_ispada").toString());
+                String vrstaIspada = String.valueOf(jsonObject.get("vrsta_ispada"));
+
+                SifrarnikVrstaIspada sifrarnikVrstaIspada2 = new SifrarnikVrstaIspada(vrstaIspadaID,vrstaIspada );
+                lVrsteIspada.add(sifrarnikVrstaIspada2);
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            if (errorCounter == 0)
+            {
+                Toast.makeText(getApplication(), greška, Toast.LENGTH_LONG).show();
+                errorCounter++;
+            }
+        }
+        return lVrsteIspada;
     }
 
 

@@ -19,9 +19,15 @@
 
     <style name="SearchView" parent="Widget.AppCompat.SearchView">
         <item name="android:editTextColor">@color/textWhite</item>
-        <item name="android:textColorHint">@color/textWhite</item>
+        <item name="searchHintIcon">@null</item>
         <item name="android:tint">@color/textWhite</item>
-        <item name="android:queryBackground">@color/textWhite</item>
+        <item name="android:cacheColorHint">@color/textWhite</item>
+        <item name="android:colorBackgroundCacheHint">@color/textWhite</item>
+        <item name="android:maxWidth">1000dp</item>
     </style>
 
+
+    <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">20dp</item>
+    </style>
 </resources>

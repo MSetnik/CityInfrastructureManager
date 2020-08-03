@@ -1,10 +1,7 @@
 package com.example.cityinfrastrukturemanager.Adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-import android.os.Build;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,27 +10,23 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.cityinfrastrukturemanager.Model.Ispad;
 import com.example.cityinfrastrukturemanager.Model.IspadPrikaz;
 import com.example.cityinfrastrukturemanager.R;
 
-import org.w3c.dom.Text;
-
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 
 public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecyclerviewAdapter.IspadiViewHolder> implements Filterable {
     private ArrayList<IspadPrikaz>lIspadPrikaz;
     private ArrayList<IspadPrikaz>lIspadPrikazPun;
-
+    private String datumPocetak = "";
+    private String datumKraj = "";
+    private static final String TAG = "MyApp";
     private Context context;
     private IspadClickListener ispadClickListener;
 
@@ -59,12 +52,9 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
 
         String pocetakVrijeme = GetTime(ispadi.getPocetak_ispada());
         String pocetakDatum = GetDate(ispadi.getPocetak_ispada());
+//        String todayDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
+//        String date = ispadi.getKraj_ispada();
 
-        String todayDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
-        String date = ispadi.getKraj_ispada();
-
-        Date date1 =stringToDate(todayDate, "yyyy-MM-dd HH:mm:ss.SSS");
-        Date date2 = stringToDate(date,"yyyy-MM-dd HH:mm:ss.SSS");
 
         if(ispadi.getStatus().equals("NIJE RIJEŠENO"))
         {
@@ -83,6 +73,26 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
         holder.vrstaIspada.setText(ispadi.getVrstaIspada());
         holder.vrijemePocetka.setText(pocetakVrijeme);
         holder.datumPocetka.setText(pocetakDatum);
+        switch (ispadi.getVrstaIspada())
+        {
+            case "Nestanak električne energije":
+                holder.vrstaIndicator.setBackgroundColor(ContextCompat.getColor(context, R.color.Nestanak_elektricne_energije));
+                break;
+
+            case "Nestanak plina":
+                holder.vrstaIndicator.setBackgroundColor(ContextCompat.getColor(context, R.color.Nestanak_plina));
+                break;
+
+            case "Nestanak vode":
+                holder.vrstaIndicator.setBackgroundColor(ContextCompat.getColor(context, R.color.Nestanak_vode));
+                break;
+
+            case "Prekid prometa":
+                holder.vrstaIndicator.setBackgroundColor(ContextCompat.getColor(context, R.color.Prekid_prometa));
+                break;
+        }
+
+
 
 
 
@@ -96,6 +106,12 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
         Date stringDate = simpledateformat.parse(aDate, pos);
         return stringDate;
 
+    }
+
+
+    public void SetFilterOdabirLista(ArrayList<IspadPrikaz>lFilterIspadPrikaz)
+    {
+        this.lIspadPrikaz = lFilterIspadPrikaz;
     }
 
 
@@ -139,7 +155,7 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
 
                 for(IspadPrikaz prikaz : lIspadPrikazPun)
                 {
-                    if(prikaz.getGrad().toLowerCase().contains(filterPattern))
+                    if(prikaz.getGrad().toLowerCase().contains(filterPattern) || prikaz.getVrstaIspada().toLowerCase().contains(filterPattern) || prikaz.getZupanija().toLowerCase().contains(filterPattern))
                     {
                         filtriranPrikaz.add(prikaz);
                     }
@@ -167,6 +183,7 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
         private TextView vrijemePocetka;
         private TextView datumPocetka;
         private TextView stanjeIspada;
+        private View vrstaIndicator;
         public IspadiViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -175,7 +192,7 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
             vrijemePocetka = itemView.findViewById(R.id.VrijemeIspada_CardViewTxt);
             datumPocetka = itemView.findViewById(R.id.DatumIspada_CardViewTxt);
             stanjeIspada = itemView.findViewById(R.id.StanjeIspada_CardView);
-
+            vrstaIndicator = itemView.findViewById(R.id.vrstaIndicator);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_gravity="center"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="10dp"
+    app:cardUseCompatPadding="true"
+
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/fdNaslov"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filtriraj ispade"
+            android:textSize="20dp"
+            android:textColor="@color/colorSecondaryLight"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/fdRazmak"
+            android:layout_marginBottom="10dp"/>
+
+        <View
+            android:id="@+id/fdRazmak"
+            android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            android:background="@color/colorSecondaryLight"
+            app:layout_constraintTop_toBottomOf="@id/fdNaslov"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/odaberiteZupaniju"
+            android:layout_marginBottom="10dp"/>
+
+
+        <TextView
+            android:id="@+id/odaberiteZupaniju"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/odaberite_zupaniju"
+            android:layout_marginRight="15dp"
+            android:textSize="15dp"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintTop_toBottomOf="@id/fdRazmak"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/spinnerZupanije"
+            app:layout_constraintBottom_toTopOf="@id/odaberiteIspad"/>
+
+        <Spinner
+            android:id="@+id/spinnerZupanije"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/odaberiteZupaniju"
+            app:layout_constraintLeft_toRightOf="@id/odaberiteZupaniju"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/odaberiteZupaniju"/>
+
+        <TextView
+            android:id="@+id/odaberiteIspad"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/odaberite_ispad"
+            android:layout_marginRight="15dp"
+            android:textSize="15dp"
+            app:layout_constraintTop_toBottomOf="@id/odaberiteZupaniju"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/spinnerIspad"
+            app:layout_constraintBottom_toTopOf="@id/fdTxtPocetak"/>
+
+        <Spinner
+            android:id="@+id/spinnerIspad"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/odaberiteIspad"
+            app:layout_constraintLeft_toRightOf="@id/odaberiteIspad"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/odaberiteIspad"/>
+
+        <TextView
+            android:id="@+id/fdTxtPocetak"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/pocetak_ispada"
+            android:textSize="15dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="25dp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintTop_toBottomOf="@id/odaberiteIspad"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/filterBtn"
+            app:layout_constraintRight_toLeftOf="@id/fdPickerPocetak"/>
+
+        <TextView
+            android:id="@+id/fdPickerPocetak"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/odaberite_datum"
+            android:textSize="15dp"
+            app:layout_constraintTop_toBottomOf="@id/fdTxtPocetak"
+            app:layout_constraintLeft_toRightOf="@id/fdTxtPocetak"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/fdTxtPocetak"/>
+
+        <Button
+            android:id="@+id/filterBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Filtriraj"
+            app:layout_constraintTop_toBottomOf="@id/fdTxtPocetak"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

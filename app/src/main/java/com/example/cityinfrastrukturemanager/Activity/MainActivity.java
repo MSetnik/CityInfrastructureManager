@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -33,34 +34,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.example.cityinfrastrukturemanager.Adapter.IspadiRecyclerviewAdapter;
 import com.example.cityinfrastrukturemanager.Adapter.ViewPagerAdapter;
-import com.example.cityinfrastrukturemanager.DatabaseConn.DbConn;
 import com.example.cityinfrastrukturemanager.Fragment.RijeseniIspadiFragment;
 import com.example.cityinfrastrukturemanager.Fragment.TrenutniIspadiFragment;
-import com.example.cityinfrastrukturemanager.Model.Ispad;
 import com.example.cityinfrastrukturemanager.Model.IspadPrikaz;
 import com.example.cityinfrastrukturemanager.R;
 import com.example.cityinfrastrukturemanager.ViewModel.MyViewModel;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-import com.miguelcatalan.materialsearchview.MaterialSearchView;
-
-import org.json.simple.parser.JSONParser;
-
-import java.io.Serializable;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-
-import static android.view.KeyEvent.KEYCODE_BACK;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MyApp";
@@ -83,18 +67,21 @@ public class MainActivity extends AppCompatActivity {
         dialog = new Dialog(this);
     }
 
-    
+
     private void ToolbarSetup()
     {
         Toolbar toolbar = findViewById(R.id.toolbar_include);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.main_activity_name);
         toolbar.setTitleTextColor(getResources().getColor(R.color.ToolbarText));
+
     }
+
 
     private void GoToMaps()
     {
         lSviIspadi = viewModel.DohvatiSveIspade();
+        final ArrayList<IspadPrikaz>lTrenutniIspadi = viewModel.DohvatiTrenutneIspade();
         floatingButton = findViewById(R.id.MapsFloatingButton);
         if(IsServicesOK())
         {
@@ -102,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-                    intent.putExtra("ispadi", lSviIspadi);
+                    intent.putExtra("ispadi", lTrenutniIspadi);
                     startActivity(intent);
                 }
             });

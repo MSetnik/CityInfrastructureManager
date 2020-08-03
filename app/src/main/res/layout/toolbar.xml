@@ -7,6 +7,7 @@
     android:background="@color/colorPrimary"
     android:elevation="4dp"
     android:id="@+id/Toolbar"
+    app:titleTextAppearance="@style/Toolbar.TitleText"
     android:theme="@style/SearchView">
 
 
