@@ -39,7 +39,7 @@ public class MyViewModel extends AndroidViewModel {
     //poziva se u main activitiju
     public ArrayList<IspadPrikaz> DohvatiTrenutneIspade()
     {
-        dbConn = new DbConn(getApplication(),"prikazi_trenutne_ispade" );
+        dbConn = new DbConn("prikazi_trenutne_ispade" );
 
         try {
             json = dbConn.execute().get();
@@ -100,7 +100,7 @@ public class MyViewModel extends AndroidViewModel {
     //poziva se u main activitiju
     public ArrayList<IspadPrikaz> DohvatiRijeseneIspade()
     {
-        dbConn = new DbConn(getApplication(),"prikazi_rijesene_ispade" );
+        dbConn = new DbConn("prikazi_rijesene_ispade" );
 
         try {
             json = dbConn.execute().get();
@@ -162,7 +162,7 @@ public class MyViewModel extends AndroidViewModel {
 
     public ArrayList<IspadPrikaz> DohvatiSveIspade()
     {
-        dbConn = new DbConn(getApplication(),"prikazi_ispade_ispis" );
+        dbConn = new DbConn("prikazi_ispade_ispis" );
 
         try {
             json = dbConn.execute().get();
@@ -224,7 +224,7 @@ public class MyViewModel extends AndroidViewModel {
 
     public ArrayList<Zupanija> DohvatiZupanije()
     {
-        dbConn = new DbConn(getApplication(),"prikazi_zupanije_android" );
+        dbConn = new DbConn("prikazi_zupanije_android" );
 
         try {
             json = dbConn.execute().get();
@@ -271,7 +271,7 @@ public class MyViewModel extends AndroidViewModel {
 
     public ArrayList<SifrarnikVrstaIspada> DohvatiVrsteIspade()
     {
-        dbConn = new DbConn(getApplication(),"prikazi_vrste_ispada_android" );
+        dbConn = new DbConn("prikazi_vrste_ispada_android" );
 
         try {
             json = dbConn.execute().get();

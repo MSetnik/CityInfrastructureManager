@@ -52,8 +52,6 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
 
         String pocetakVrijeme = GetTime(ispadi.getPocetak_ispada());
         String pocetakDatum = GetDate(ispadi.getPocetak_ispada());
-//        String todayDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
-//        String date = ispadi.getKraj_ispada();
 
 
         if(ispadi.getStatus().equals("NIJE RIJEŠENO"))

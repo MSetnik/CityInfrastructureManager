@@ -189,36 +189,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.clear();
         double najmanjaUdaljenost = 1E38; // veliki broj
         ArrayList<IspadPrikaz> lIspadPrikaz = lIspadi;
-        ArrayList<IspadPrikaz>sLocation = new ArrayList<>();
         LatLng latLng;
         NajbliziIspad najbliziIspad = new NajbliziIspad();
         NajbliziIspad ispad2;
-        Set<IspadPrikaz> setIspad = new HashSet<>();
-
-
-//        for (IspadPrikaz ispadPrikaz : lIspadPrikaz) {
-//            helper = 0;
-//            for (IspadPrikaz ispadPrikaz1 : lIspadPrikaz) {
-//
-//                if (ispadPrikaz.getLat() == ispadPrikaz1.getLat() && ispadPrikaz.getLng() == ispadPrikaz1.getLng()) {
-////                    sLocation.add(ispadPrikaz1);
-//                    helper++;
-//                }
-//                if (helper > 1) {
-////                    ispadPrikaz.setLat((ispadPrikaz1.getLat() + ispadValue));
-//                    setIspad.add(ispadPrikaz);
-//                    Log.d(TAG, "GetLatLng: " + helper + "   " + setIspad.size());
-//
-////                    Log.d(TAG, "GetLatLng: lat lgng helper " + ispadPrikaz.getGrad());
-////                    Log.d(TAG, "GetLatLng: " + (ispadPrikaz.getLat() + ispadValue));
-////                    ispadPrikaz.setLat((ispadPrikaz.getLat() + ispadValue));
-////                    sLocation.add(ispadPrikaz);
-////                    Log.d(TAG, "GetLatLng: ispad get lat " + ispadPrikaz.getLat());
-//                }
-//            }
-//        }
-
-
 
         for (IspadPrikaz ispad : lIspadPrikaz)
         {
@@ -250,17 +223,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.addMarker(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - " + ispad.getOpis()).icon(markerIcon));
             }
 
-//            if (ispad.getStatus().equals("RIJEŠENO")) {
-//                marker.add(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - " + ispad.getOpis()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-////                mMap.addMarker(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - " + ispad.getOpis()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-//            } else {
-//                ispad2 = GetClosestMarker(ispad);
-////                mMap.addMarker(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - " + ispad.getOpis()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-//                marker.add(new MarkerOptions().position(latLng).title(ispad.getVrstaIspada() + " - " + ispad.getOpis()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-//
-//            }
-
-
             if (lIspadPrikaz.size() == 1) {
                 MoveCamera(latLng);
             }
@@ -284,8 +246,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public ArrayList<IspadPrikaz> FilterLogic(Spinner spinnerZupanija, Spinner spinnerVrstaIspada, TextView datumPocetak, ArrayList<IspadPrikaz>lIspadPrikaz) {
-
-
         ArrayList<IspadPrikaz> filter = new ArrayList<>();
 
 
@@ -299,20 +259,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
 
+
         for (IspadPrikaz ispadPrikaz : lIspadPrikaz) {
             String pocetakIspada = GetDate(ispadPrikaz.getPocetak_ispada());
             pocetakIspada = pocetakIspada.replaceAll("[.]", "");
-            String krajIspada = "99999999";
-            Log.d(TAG, "FilterLogic: kraj ispada " + ispadPrikaz.getKraj_ispada());
-            if(!ispadPrikaz.getKraj_ispada().equals(""))
-            {
-                krajIspada = GetDate(ispadPrikaz.getKraj_ispada());
-                krajIspada = krajIspada.replaceAll("[.]", "");
-            }
-
 
             if (!datumPocetak.getText().toString().equals("Odaberite datum")  && !spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && !spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
-                if (spinnerZupanija.getSelectedItem().toString().equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.getSelectedItem().toString().equals(ispadPrikaz.getVrstaIspada()) && Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(ispadPrikaz.getPocetak_ispada()))) {
+                if (spinnerZupanija.getSelectedItem().toString().equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.getSelectedItem().toString().equals(ispadPrikaz.getVrstaIspada()) && Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada))) {
 
                     Log.d(TAG, "FilterLogic: if 1 ");
                     filter.add(ispadPrikaz);
@@ -415,6 +368,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void InitMap() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        assert mapFragment != null;
         mapFragment.getMapAsync(this);
     }
 
@@ -435,7 +389,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                             if (currentLocation != null) {
                                 GetLatLng(lIspadPrikaz);
-                            } else if (currentLocation == null) {
+                            } else {
                                 Toast.makeText(MapsActivity.this, "Uključite GPS kako bi dohvatili vašu lokaciju", Toast.LENGTH_SHORT).show();
                             }
 

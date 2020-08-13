@@ -56,19 +56,15 @@ public class RijeseniIspadiFragment extends Fragment implements SwipeRefreshLayo
     private Dialog dialog;
     private IspadiRecyclerviewAdapter recyclerviewAdapter;
     private static final int ERROR_DIALOG_REQUEST = 9001;
-    private String title;
     private MyViewModel viewModel;
     private SwipeRefreshLayout swipeLayout;
     private MenuItem searchItem;
-    private TextView txtPocetak;
     private TextView pocetakPicker;
-    private TextView txtKraj;
     private TextView krajPicker;
     private int dateIntHelper;
     private Button filterBtn;
     private Spinner spinnerIspad;
     private Spinner spinnerZupanija;
-    boolean ifOdabir;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -111,9 +107,7 @@ public class RijeseniIspadiFragment extends Fragment implements SwipeRefreshLayo
                 spinnerIspad.setAdapter(adapterSpinnerVrstaIspada);
 
 
-                 txtPocetak = ispadDetaljiView.findViewById(R.id.fdTxtPocetak);
                  pocetakPicker = ispadDetaljiView.findViewById(R.id.fdPickerPocetak);
-                 txtKraj= ispadDetaljiView.findViewById(R.id.fdTxtKraj);
                  krajPicker = ispadDetaljiView.findViewById(R.id.fdPickerKraj);
                  filterBtn = ispadDetaljiView.findViewById(R.id.filterBtn);
 
@@ -186,8 +180,6 @@ public class RijeseniIspadiFragment extends Fragment implements SwipeRefreshLayo
 
     public ArrayList<IspadPrikaz> FilterLogic(Spinner spinnerZupanija, Spinner spinnerVrstaIspada, TextView datumPocetak, TextView datumKraj, ArrayList<IspadPrikaz>lRijeseniIspadi) {
         ArrayList<IspadPrikaz> filter = new ArrayList<>();
-
-
         String dateReversePocetak = datumPocetak.getText().toString();
 
         String dateReverseKraj = datumKraj.getText().toString();
@@ -198,10 +190,8 @@ public class RijeseniIspadiFragment extends Fragment implements SwipeRefreshLayo
             dateReversePocetak = ReverseDate(date1);
 
         }
+
         if (!datumKraj.getText().toString().equals("Odaberite datum")) {
-//            String dateKraj = datumKraj.getText().toString();
-//            String dateKraj1 = dateKraj.replaceAll("[.]", "");
-//            dateReverseKraj = ReverseDate(dateKraj1);
             String dateKraj = datumKraj.getText().toString();
             // datumi jednakim odabranim krajem se ne prikazuju workaround
             String dateKrajString = dateKraj.replaceAll("[.]", "");
@@ -213,26 +203,11 @@ public class RijeseniIspadiFragment extends Fragment implements SwipeRefreshLayo
 
             String dateDayplusOne = String.valueOf(dateInt);
             dateReverseKraj = dateDayplusOne;
-//            String dateKraj1 = dateDayplusOne.replaceAll("[.]", "");
             Log.d(TAG, "FilterLogic: datereverse kra " + dateDayplusOne);
         }
 
-        //        if (!datumKraj.getText().toString().equals("Odaberite datum")) {
-//            String dateKraj = datumKraj.getText().toString();
-//            // datumi jednakim odabranim krajem se ne prikazuju workaround
-//            String dateKrajString = dateKraj.replaceAll("[.]", "");
-//            int dateInt = Integer.parseInt(dateKrajString);
-//
-//
-//            dateInt = dateInt+1;
-//
-//            String dateDayplusOne = String.valueOf(dateInt);
-////            String dateKraj1 = dateDayplusOne.replaceAll("[.]", "");
-//            dateReverseKraj = ReverseDate(dateDayplusOne);
-//        }
 
         for (IspadPrikaz ispadPrikaz : lRijeseniIspadi) {
-            ifOdabir = false;
             String pocetakIspada = GetDate(ispadPrikaz.getPocetak_ispada());
             pocetakIspada = pocetakIspada.replaceAll("[.]", "");
             String krajIspada = GetDate(ispadPrikaz.getKraj_ispada());
@@ -240,10 +215,9 @@ public class RijeseniIspadiFragment extends Fragment implements SwipeRefreshLayo
 
 
             if (!datumPocetak.getText().toString().equals("Odaberite datum") && !datumKraj.getText().toString().equals("Odaberite datum") && !spinnerZupanija.getSelectedItem().toString().equals("Sve županije") && !spinnerVrstaIspada.getSelectedItem().toString().equals("Svi ispadi")) {
-                if (spinnerZupanija.getSelectedItem().toString().equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.getSelectedItem().toString().equals(ispadPrikaz.getVrstaIspada()) && Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(ispadPrikaz.getKraj_ispada())) && Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(ispadPrikaz.getPocetak_ispada()))) {
+                if (spinnerZupanija.getSelectedItem().toString().equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.getSelectedItem().toString().equals(ispadPrikaz.getVrstaIspada()) && Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada))) {
 
                     Log.d(TAG, "FilterLogic: if 1 ");
-                    ifOdabir = true;
                     filter.add(ispadPrikaz);
 
                 }
