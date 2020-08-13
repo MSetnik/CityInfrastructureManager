@@ -1,4 +1,5 @@
 <resources>
+    <string name="google_maps_api_key">AIzaSyB3QrVGo5FthpMQSqBxRbLJSbNem7UT8sc</string>
     <string name="app_name">City infrastructure manager</string>
     <string name="main_activity_name">Popis ispada</string>
     <string name="search">Search</string>

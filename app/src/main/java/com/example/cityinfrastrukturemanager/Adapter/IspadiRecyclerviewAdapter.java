@@ -114,7 +114,7 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
 
 
     public static String GetTime(String datetime) {
-        String strTime = datetime.substring(12,16);
+        String strTime = datetime.substring(11,16);
         return strTime;
     }
 
