@@ -90,10 +90,6 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
                 break;
         }
 
-
-
-
-
     }
 
     private Date stringToDate(String aDate,String aFormat) {

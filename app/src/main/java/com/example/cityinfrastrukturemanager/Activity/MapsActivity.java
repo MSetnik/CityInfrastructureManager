@@ -112,11 +112,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                 @Override
                 public boolean onMyLocationButtonClick() {
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 8));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 8));
                     return true;
                 }
             });
         }
+
+        GetIspadiData();
+
+
+    }
+
+    private void GetIspadiData()
+    {
         lIspadPrikaz = (ArrayList<IspadPrikaz>) getIntent().getSerializableExtra("ispadi");
 
         Button activityFilterButton = findViewById(R.id.button);
@@ -162,7 +170,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 });
             }
         });
-
     }
 
     private NajbliziIspad GetClosestMarker(IspadPrikaz ispad) {
@@ -181,7 +188,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void MoveCamera(LatLng latLng) {
         //mMap.addMarker(new MarkerOptions().position(latLng));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 8));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 8));
 
     }
 
