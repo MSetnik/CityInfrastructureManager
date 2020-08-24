@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         floatingButton = findViewById(R.id.MapsFloatingButton);
         if(IsServicesOK())
         {
+
             floatingButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

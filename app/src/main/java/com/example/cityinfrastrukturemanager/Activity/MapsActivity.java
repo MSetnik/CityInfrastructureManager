@@ -177,7 +177,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         markerLocation.setLatitude(ispad.getLat());
         markerLocation.setLongitude(ispad.getLng());
 
-        float udaljenost = currentLocation.distanceTo(markerLocation) / 1000;
+        float udaljenost = currentLocation.distanceTo(markerLocation) / 1000; // u kilometrima
         NajbliziIspad najbliziIspad = new NajbliziIspad();
         najbliziIspad.setIspadPrikaz(ispad);
         najbliziIspad.setUdaljenost(udaljenost);
