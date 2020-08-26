@@ -103,6 +103,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        GetIspadiData();
         if (mLocationPermissionGranted) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
@@ -112,13 +113,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                 @Override
                 public boolean onMyLocationButtonClick() {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 8));
+                    if(currentLocation != null)
+                    {
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 8));
+
+                    }
                     return true;
                 }
             });
         }
+        else{
+            GetLatLng(lIspadPrikaz);
+            LatLng Zagreb = new LatLng(45.815399, 15.966568);
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(Zagreb, 6));
+        }
 
-        GetIspadiData();
+
 
 
     }
@@ -182,6 +192,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         najbliziIspad.setIspadPrikaz(ispad);
         najbliziIspad.setUdaljenost(udaljenost);
 
+
         return najbliziIspad;
     }
 
@@ -234,16 +245,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 MoveCamera(latLng);
             }
 
-            ispad2 = GetClosestMarker(ispad);
-            if (najmanjaUdaljenost > ispad2.getUdaljenost()) {
-                najmanjaUdaljenost = ispad2.getUdaljenost();
-                najbliziIspad = ispad2;
+            if (currentLocation != null)
+            {
+                ispad2 = GetClosestMarker(ispad);
+                if (najmanjaUdaljenost > ispad2.getUdaljenost()) {
+                    najmanjaUdaljenost = ispad2.getUdaljenost();
+                    najbliziIspad = ispad2;
 
+                }
             }
+
         }
 
 
-        if(najbliziIspad.getIspadPrikaz() != null)
+
+        if(najbliziIspad.getIspadPrikaz() != null && currentLocation != null)
         {
             MoveCamera(new LatLng(najbliziIspad.getIspadPrikaz().getLat(), najbliziIspad.getIspadPrikaz().getLng()));
             Log.d(TAG, "GetLatLng: najblizi ispad " + najbliziIspad.getIspadPrikaz().getGrad());
@@ -377,6 +393,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
+
+
     }
 
     public void GetMyLocation() {
@@ -393,10 +411,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             Log.d(TAG, "onComplete: found location!");
                             currentLocation = (Location) task.getResult();
 
-
+                            GetLatLng(lIspadPrikaz);
                             if (currentLocation != null) {
-                                GetLatLng(lIspadPrikaz);
+
                             } else {
+                                LatLng Zagreb = new LatLng(45.815399, 15.966568);
+                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(Zagreb, 6));
                                 Toast.makeText(MapsActivity.this, "Uključite GPS kako bi dohvatili vašu lokaciju", Toast.LENGTH_SHORT).show();
                             }
 
@@ -414,20 +434,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     //provjeravaju se dozvole za pristup gpsu
     public void GetLocationPermission() {
-        String[] permission = {Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION};
+        String[] permission = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
 
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(), FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if (ContextCompat.checkSelfPermission(this.getApplicationContext(), COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mLocationPermissionGranted = true;
-                GetMyLocation();
+
                 InitMap();
+                GetMyLocation();
             } else {
                 ActivityCompat.requestPermissions(this, permission, LOCATION_PERMISSION_REQUEST_CODE);
             }
         } else {
+
             ActivityCompat.requestPermissions(this, permission, LOCATION_PERMISSION_REQUEST_CODE);
         }
+
     }
 
 
