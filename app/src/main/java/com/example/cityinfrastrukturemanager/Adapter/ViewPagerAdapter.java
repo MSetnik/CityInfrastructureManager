@@ -8,9 +8,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
-import com.example.cityinfrastrukturemanager.Fragment.RijeseniIspadiFragment;
-import com.example.cityinfrastrukturemanager.Fragment.TrenutniIspadiFragment;
-import com.example.cityinfrastrukturemanager.Model.IspadPrikaz;
 
 import java.util.ArrayList;
 

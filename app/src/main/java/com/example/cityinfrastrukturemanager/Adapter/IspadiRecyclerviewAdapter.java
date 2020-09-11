@@ -24,8 +24,6 @@ import java.util.Date;
 public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecyclerviewAdapter.IspadiViewHolder> implements Filterable {
     private ArrayList<IspadPrikaz>lIspadPrikaz;
     private ArrayList<IspadPrikaz>lIspadPrikazPun;
-    private String datumPocetak = "";
-    private String datumKraj = "";
     private static final String TAG = "MyApp";
     private Context context;
     private IspadClickListener ispadClickListener;
@@ -118,7 +116,7 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
         String godina = datetime.substring(0,4);
         String mjesec = datetime.substring(5,7);
         String dan = datetime.substring(8,10);
-        String strDate = dan+"."+mjesec+"."+godina;//datetime.substring(0,11);
+        String strDate = dan+"."+mjesec+"."+godina+".";
         return strDate;
     }
 

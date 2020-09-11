@@ -14,46 +14,79 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
-
 
 import com.example.cityinfrastrukturemanager.Adapter.ViewPagerAdapter;
 import com.example.cityinfrastrukturemanager.Fragment.RijeseniIspadiFragment;
 import com.example.cityinfrastrukturemanager.Fragment.TrenutniIspadiFragment;
 import com.example.cityinfrastrukturemanager.Model.IspadPrikaz;
+import com.example.cityinfrastrukturemanager.Model.SifrarnikVrstaIspada;
+import com.example.cityinfrastrukturemanager.Model.Zupanija;
 import com.example.cityinfrastrukturemanager.R;
 import com.example.cityinfrastrukturemanager.ViewModel.MyViewModel;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+
+public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener{
     private static final String TAG = "MyApp";
-    private FloatingActionButton floatingButton;
-    private ArrayList<IspadPrikaz> lSviIspadi = new ArrayList<>();
     private MyViewModel viewModel;
-    private Dialog dialog;
     private static final int ERROR_DIALOG_REQUEST = 9001;
+
+    private ArrayList<Zupanija>lZupanije = new ArrayList<>();
+    private ArrayList<SifrarnikVrstaIspada> lVrsteIspada = new ArrayList<>();
+    public RijeseniIspadiFragment rijeseniIspadiFragment;
+    public TrenutniIspadiFragment trenutniIspadiFragment;
+
+    public MenuItem searchItem;
+    public TextView pocetakPicker;
+    public TextView krajPicker;
+    public int dateIntHelper;
+    public Button filterBtn;
+    public Button resetBtn;
+    public Spinner spinnerIspad;
+    public Spinner spinnerZupanija;
+
+    public int zupanija;
+    public int vrstaIspada;
+    public String datumP = null;
+    public String datumK = null;
+    private Boolean filterReset = false;
+    public MenuItem filterItem;
+    public AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         viewModel = new ViewModelProvider(this,ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(MyViewModel.class);
+        this.lZupanije = viewModel.DohvatiZupanije();
+        this.lVrsteIspada = viewModel.DohvatiVrsteIspade();
 
         ToolbarSetup();
         GoToMaps();
         ViewPagerImplementation();
-        dialog = new Dialog(this);
     }
 
 
@@ -69,9 +102,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void GoToMaps()
     {
-        lSviIspadi = viewModel.DohvatiSveIspade();
         final ArrayList<IspadPrikaz>lTrenutniIspadi = viewModel.DohvatiTrenutneIspade();
-        floatingButton = findViewById(R.id.MapsFloatingButton);
+        FloatingActionButton floatingButton = findViewById(R.id.MapsFloatingButton);
         if(IsServicesOK())
         {
 
@@ -116,9 +148,10 @@ public class MainActivity extends AppCompatActivity {
 
         ArrayList<Fragment> list = new ArrayList<>();
         ArrayList<String>lFragmentTitle = new ArrayList<>();
-
-        list.add(new TrenutniIspadiFragment());
-        list.add(new RijeseniIspadiFragment());
+        trenutniIspadiFragment = new TrenutniIspadiFragment();
+        rijeseniIspadiFragment = new RijeseniIspadiFragment();
+        list.add(trenutniIspadiFragment);
+        list.add(rijeseniIspadiFragment);
 
         lFragmentTitle.add("Trenutni ispadi");
         lFragmentTitle.add("Riješeni ispadi");
@@ -130,4 +163,191 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_list, menu);
+        filterItem = menu.findItem(R.id.filterSearch);
+        MenuItem infoItem = menu.findItem(R.id.info);
+
+        searchItem = menu.findItem(R.id.action_search);
+        androidx.appcompat.widget.SearchView searchView = (androidx.appcompat.widget.SearchView) searchItem.getActionView();
+        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+
+        filterReset = false;
+        SetFilterDialog();
+
+        searchView.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                rijeseniIspadiFragment.recyclerviewAdapterR.getFilter().filter(newText);
+                trenutniIspadiFragment.recyclerviewAdapterT.getFilter().filter(newText);
+                return false;
+            }
+        });
+
+        infoItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                final AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                final View ispadDetaljiView = getLayoutInflater().inflate(R.layout.colors_info, null);
+                alertDialog.setView(ispadDetaljiView);
+                alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                alertDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                alertDialog.show();
+                return false;
+            }
+        });
+        return true;
+    }
+
+    private void SetFilterDialog()
+    {
+        alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+        final View ispadDetaljiView = getLayoutInflater().inflate(R.layout.filter_dialog_rijeseni_ispadi, null);
+        alertDialog.setView(ispadDetaljiView);
+        alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        alertDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+
+        spinnerZupanija = ispadDetaljiView.findViewById(R.id.spinnerZupanije);
+        spinnerIspad = ispadDetaljiView.findViewById(R.id.spinnerIspad);
+        ArrayAdapter<Zupanija> adapterSpinnerZupanije = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, lZupanije);
+        final ArrayAdapter<SifrarnikVrstaIspada>adapterSpinnerVrstaIspada = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, lVrsteIspada);
+
+        adapterSpinnerZupanije.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapterSpinnerVrstaIspada.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerZupanija.setAdapter(adapterSpinnerZupanije);
+        spinnerIspad.setAdapter(adapterSpinnerVrstaIspada);
+
+
+        pocetakPicker = ispadDetaljiView.findViewById(R.id.fdPickerPocetak);
+        krajPicker = ispadDetaljiView.findViewById(R.id.fdPickerKraj);
+        resetBtn = ispadDetaljiView.findViewById(R.id.resetFilterBtn);
+        filterItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                alertDialog.show();
+
+                if(datumP != null)
+                {
+                    pocetakPicker.setText(datumP);
+                }
+
+                if(datumK != null)
+                {
+                    krajPicker.setText(datumK);
+                }
+
+                filterBtn = ispadDetaljiView.findViewById(R.id.filterBtn);
+
+                pocetakPicker.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dateIntHelper = 0;
+                        ShowDatePickerDialog();
+
+                    }
+                });
+
+                krajPicker.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dateIntHelper = 1;
+                        ShowDatePickerDialog();
+                    }
+                });
+
+                filterBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ArrayList<IspadPrikaz> filter = new ArrayList<>();
+                        filter.clear();
+
+                        zupanija = spinnerZupanija.getSelectedItemPosition();
+                        vrstaIspada = spinnerIspad.getSelectedItemPosition();
+
+                        rijeseniIspadiFragment.GetFilter(spinnerZupanija.getSelectedItem().toString(), spinnerIspad.getSelectedItem().toString(), pocetakPicker.getText().toString(),krajPicker.getText().toString());
+                        trenutniIspadiFragment.GetFilter(spinnerZupanija.getSelectedItem().toString(), spinnerIspad.getSelectedItem().toString(), pocetakPicker.getText().toString(), krajPicker.getText().toString());
+                        alertDialog.dismiss();
+                        searchItem.collapseActionView();
+                    }
+                });
+
+                resetBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        spinnerZupanija.setSelection(0);
+                        spinnerIspad.setSelection(0);
+                        pocetakPicker.setText(R.string.odaberite_datum);
+                        krajPicker.setText(R.string.odaberite_datum);
+                        datumP = null;
+                        datumK = null;
+
+                        zupanija = spinnerZupanija.getSelectedItemPosition();
+                        vrstaIspada = spinnerIspad.getSelectedItemPosition();
+
+                        rijeseniIspadiFragment.GetFilter(spinnerZupanija.getSelectedItem().toString(), spinnerIspad.getSelectedItem().toString(), pocetakPicker.getText().toString(),krajPicker.getText().toString());
+                        trenutniIspadiFragment.GetFilter(spinnerZupanija.getSelectedItem().toString(), spinnerIspad.getSelectedItem().toString(), pocetakPicker.getText().toString(), krajPicker.getText().toString());
+                        alertDialog.dismiss();
+                        searchItem.collapseActionView();
+                    }
+                });
+
+                spinnerZupanija.setSelection(zupanija);
+                spinnerIspad.setSelection(vrstaIspada);
+
+                return false;
+            }
+        });
+
+    }
+
+    public void ShowDatePickerDialog()
+    {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this, this, Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH), Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.show();
+    }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        DecimalFormat df = new DecimalFormat("00");
+        int dan = dayOfMonth;
+        int mon = month + 1;
+        String sDan = df.format(dan);
+        String mont = df.format(mon);
+
+
+        String date = sDan + "." + mont + "."+ year + ".";
+        SetDate(date);
+    }
+
+    public void SetDate(String date)
+    {
+        Log.d(TAG, "SetDate: filter reset " + filterReset);
+        if(dateIntHelper == 0)
+        {
+            pocetakPicker.setText(date);
+            if(filterReset)
+            {
+                datumP =null;
+            }else {
+                datumP = date;
+            }
+        }
+        else
+        {
+            krajPicker.setText(date);
+            if(filterReset)
+            {
+                datumK = null;
+            } else{
+                datumK = date;
+            }
+        }
+    }
 }

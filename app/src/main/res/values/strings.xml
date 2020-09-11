@@ -17,4 +17,6 @@
     <string name="pocetak_ispada">Početak ispada</string>
     <string name="kraj_ispada">Kraj ispada</string>
     <string name="filter">Filter</string>
+    <string name="filtriraj">Filtriraj</string>
+    <string name="poni_ti">Poništi</string>
 </resources>

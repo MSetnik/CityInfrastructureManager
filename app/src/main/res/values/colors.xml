@@ -17,4 +17,5 @@
     <color name="Nestanak_vode">#FF0189E3</color>
     <color name="Nestanak_plina">#FFEC6000</color>
     <color name="transparent_white">#B5FDFDFD</color>
+    <color name="reset">#FF4F4F</color>
 </resources>

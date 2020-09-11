@@ -15,7 +15,6 @@ public class DbConn extends AsyncTask<Void, Void, String> {
     private static final String TAG = "MyApp";
 
     private String action_id;
-    private String json = "";
 
     public DbConn (String sActionId)
     {
@@ -46,8 +45,7 @@ public class DbConn extends AsyncTask<Void, Void, String> {
             bufferedReader.close();
             inputStream.close();
             httpURLConnection.disconnect();
-            json = result;
-            return json;
+            return result;
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -63,12 +61,4 @@ public class DbConn extends AsyncTask<Void, Void, String> {
         String uspjeh ="Uspjeh";
 
     }
-
-
-    @Override
-    protected void onProgressUpdate(Void... values) {
-        super.onProgressUpdate(values);
-    }
-
-
 }

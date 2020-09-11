@@ -78,7 +78,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private MyViewModel viewModel;
     private ArrayList<Zupanija>lZupanije;
     private ArrayList<SifrarnikVrstaIspada>lVrsteIspada;
+    private Button resetBtn;
 
+    private int zupanija;
+    private int vrstaIspada;
+    private String datumP = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,10 +131,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             LatLng Zagreb = new LatLng(45.815399, 15.966568);
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(Zagreb, 6));
         }
-
-
-
-
     }
 
     private void GetIspadiData()
@@ -162,6 +162,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 txtPocetak = ispadDetaljiView.findViewById(R.id.fdTxtPocetak);
                 pocetakPicker = ispadDetaljiView.findViewById(R.id.fdPickerPocetak);
                 filterBtn = ispadDetaljiView.findViewById(R.id.filterBtn);
+                resetBtn = ispadDetaljiView.findViewById(R.id.resetFilterBtn);
+
+                if(datumP != null)
+                {
+                    pocetakPicker.setText(datumP);
+                }
 
                 pocetakPicker.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -175,9 +181,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     @Override
                     public void onClick(View view) {
                         GetLatLng(FilterLogic(spinnerZupanija, spinnerIspad,pocetakPicker,lIspadPrikaz));
+                        zupanija = spinnerZupanija.getSelectedItemPosition();
+                        vrstaIspada = spinnerIspad.getSelectedItemPosition();
                         alertDialog.dismiss();
                     }
                 });
+
+                resetBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        spinnerZupanija.setSelection(0);
+                        spinnerIspad.setSelection(0);
+                        pocetakPicker.setText(R.string.odaberite_datum);
+
+                        zupanija = spinnerZupanija.getSelectedItemPosition();
+                        vrstaIspada = spinnerIspad.getSelectedItemPosition();
+                        datumP = null;
+
+                        GetLatLng(FilterLogic(spinnerZupanija, spinnerIspad,pocetakPicker,lIspadPrikaz));
+                        alertDialog.dismiss();
+                    }
+                });
+                spinnerZupanija.setSelection(zupanija);
+                spinnerIspad.setSelection(vrstaIspada);
             }
         });
     }
@@ -493,6 +519,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(dateIntHelper == 0)
         {
             pocetakPicker.setText(date);
+            datumP = date;
         }
         else
         {
