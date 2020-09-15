@@ -34,8 +34,6 @@ import com.example.cityinfrastrukturemanager.Activity.MainActivity;
 import com.example.cityinfrastrukturemanager.Activity.MapsActivity;
 import com.example.cityinfrastrukturemanager.Adapter.IspadiRecyclerviewAdapter;
 import com.example.cityinfrastrukturemanager.Model.IspadPrikaz;
-import com.example.cityinfrastrukturemanager.Model.SifrarnikVrstaIspada;
-import com.example.cityinfrastrukturemanager.Model.Zupanija;
 import com.example.cityinfrastrukturemanager.R;
 import com.example.cityinfrastrukturemanager.ViewModel.MyViewModel;
 import com.google.android.gms.common.ConnectionResult;
@@ -45,7 +43,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, DatePickerDialog.OnDateSetListener {
+public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = "MyApp";
     private ArrayList<IspadPrikaz> lTrenutniIspadi = new ArrayList<>();
     public RecyclerView recyclerView;
@@ -65,7 +63,10 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel = new ViewModelProvider(getActivity()).get(MyViewModel.class);
+        if(getActivity() != null)
+        {
+            viewModel = new ViewModelProvider(getActivity()).get(MyViewModel.class);
+        }
         this.lTrenutniIspadi = viewModel.DohvatiTrenutneIspade();
     }
 
@@ -86,11 +87,8 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
 
     public void GetFilter(String zupanija, String vrstaIspada, String datumPocetak, String datumKraj)
     {
-
         ArrayList<IspadPrikaz> filter = new ArrayList<>();
         filter.clear();
-
-
 
         filter =  FilterLogic(zupanija, vrstaIspada, datumPocetak, datumKraj, lTrenutniIspadi);
 
@@ -109,7 +107,6 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
         if (!datumPocetak.equals("Odaberite datum")) {
             String date1 = datumPocetak.replaceAll("[.]", "");
             dateReversePocetak = ReverseDate(date1);
-
         }
 
         if (!datumKraj.equals("Odaberite datum")) {
@@ -139,8 +136,6 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
 
             if (!datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
                 if (spinnerZupanija.equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada()) && Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada))) {
-
-                    Log.d(TAG, "FilterLogic: if 1 ");
                     filter.add(ispadPrikaz);
 
                 }
@@ -216,7 +211,7 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
         String godina = date.substring(4,8);
         String mjesec = date.substring(2,4);
         String dan = date.substring(0,2);
-        String strDate = godina+mjesec+dan;//datetime.substring(0,11);
+        String strDate = godina+mjesec+dan;
         return strDate;
     }
 
@@ -281,7 +276,6 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
                 TextView vrijemeIspada = ispadDetaljiView.findViewById(R.id.prijavaProblemaVrijeme_ispad_detalji_CV);
                 TextView datumIspada = ispadDetaljiView.findViewById(R.id.prijavaProblemaDatum_ispad_detalji_CV);
                 Button maps = ispadDetaljiView.findViewById(R.id.btnMaps_ispad_detalji_CV);
-                Log.d(TAG, "onIspadClick: " + ispadiPrikaz.getStatus());
 
                 grad.setText(ispadiPrikaz.getGrad());
                 zupanija.setText(ispadiPrikaz.getZupanija());
@@ -358,25 +352,25 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
     }
 
 
-    @Override
-    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-        DecimalFormat df = new DecimalFormat("00");
-        int dan = day;
-        int mon = month + 1;
-        String sDan = df.format(dan);
-        String mont = df.format(mon);
-
-
-        String date = sDan + "." + mont + "."+ year;
-        SetDate(date);
-    }
-
-    public void SetDate(String date)
-    {
-        if(dateIntHelper == 0)
-        {
-            pocetakPicker.setText(date);
-        }
-    }
-    
+//    @Override
+//    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+//        DecimalFormat df = new DecimalFormat("00");
+//        int dan = day;
+//        int mon = month + 1;
+//        String sDan = df.format(dan);
+//        String mont = df.format(mon);
+//
+//
+//        String date = sDan + "." + mont + "."+ year;
+//        SetDate(date);
+//    }
+//
+//    public void SetDate(String date)
+//    {
+//        if(dateIntHelper == 0)
+//        {
+//            pocetakPicker.setText(date);
+//        }
+//    }
+//
 }

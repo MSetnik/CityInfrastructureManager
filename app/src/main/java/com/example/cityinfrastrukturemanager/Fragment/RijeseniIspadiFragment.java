@@ -53,14 +53,16 @@ public class RijeseniIspadiFragment extends Fragment implements SwipeRefreshLayo
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel = new ViewModelProvider(getActivity()).get(MyViewModel.class);
+        if(getActivity()!= null)
+        {
+            viewModel = new ViewModelProvider(getActivity()).get(MyViewModel.class);
+        }
         this.lRijeseniIspadi = viewModel.DohvatiRijeseneIspade();
     }
 
     public void GetFilter(String zupanija, String vrstaIspada, String datumPocetak, String datumKraj)
     {
         ArrayList<IspadPrikaz> filter = new ArrayList<>();
-        ArrayList<IspadPrikaz> filterHelper = new ArrayList<>();
         filter.clear();
 
 
@@ -78,10 +80,6 @@ public class RijeseniIspadiFragment extends Fragment implements SwipeRefreshLayo
         String dateReversePocetak = datumPocetak;
 
         String dateReverseKraj = datumKraj;
-        Log.d(TAG, "FilterLogic: spinner vrsta ispada " + spinnerVrstaIspada);
-        Log.d(TAG, "FilterLogic: spinner datum P " + datumPocetak);
-        Log.d(TAG, "FilterLogic: spinner datum k " + datumKraj);
-
         if (!datumPocetak.equals("Odaberite datum")) {
             String date1 = datumPocetak.replaceAll("[.]", "");
             dateReversePocetak = ReverseDate(date1);
@@ -99,7 +97,6 @@ public class RijeseniIspadiFragment extends Fragment implements SwipeRefreshLayo
 
             String dateDayplusOne = String.valueOf(dateInt);
             dateReverseKraj = dateDayplusOne;
-            Log.d(TAG, "FilterLogic: datereverse kra " + dateDayplusOne);
         }
 
 
@@ -114,8 +111,6 @@ public class RijeseniIspadiFragment extends Fragment implements SwipeRefreshLayo
 
             if (!datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
                 if (spinnerZupanija.equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada()) && Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada))) {
-
-                    Log.d(TAG, "FilterLogic: if 1 ");
                     filter.add(ispadPrikaz);
 
                 }
@@ -357,17 +352,5 @@ public class RijeseniIspadiFragment extends Fragment implements SwipeRefreshLayo
         return false;
     }
 
-
-    public void SetDate(String date)
-    {
-        if(dateIntHelper == 0)
-        {
-            pocetakPicker.setText(date);
-        }
-        else
-        {
-            krajPicker.setText(date);
-        }
-    }
 }
 

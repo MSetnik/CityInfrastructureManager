@@ -28,7 +28,7 @@ public class MyViewModel extends AndroidViewModel {
     private JSONParser jsonParser = new JSONParser();
     private static final String TAG = "MyApp";
     private int errorCounter = 0;
-    private String greška = "Greška prilikom dohvaćanja podataka sa servera. Provjerite svoju internetsku vezu.";
+    private String greska = "Greška prilikom dohvaćanja podataka sa servera. Provjerite svoju internetsku vezu.";
 
     ///Context is Application instead context because view model can outlive activity (memory leak)
     public MyViewModel(@NonNull Application application) {
@@ -90,7 +90,7 @@ public class MyViewModel extends AndroidViewModel {
             e.printStackTrace();
             if (errorCounter == 0)
             {
-                Toast.makeText(getApplication(), greška, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplication(), greska, Toast.LENGTH_SHORT).show();
                 errorCounter++;
             }
         }
@@ -152,7 +152,7 @@ public class MyViewModel extends AndroidViewModel {
             e.printStackTrace();
             if (errorCounter == 0)
             {
-                Toast.makeText(getApplication(), greška, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplication(), greska, Toast.LENGTH_SHORT).show();
                 errorCounter++;
             }
         }
@@ -214,7 +214,7 @@ public class MyViewModel extends AndroidViewModel {
             e.printStackTrace();
             if (errorCounter == 0)
             {
-                Toast.makeText(getApplication(), greška, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplication(), greska, Toast.LENGTH_LONG).show();
                 errorCounter++;
             }
         }
@@ -260,7 +260,7 @@ public class MyViewModel extends AndroidViewModel {
             e.printStackTrace();
             if (errorCounter == 0)
             {
-                Toast.makeText(getApplication(), greška, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplication(), greska, Toast.LENGTH_LONG).show();
                 errorCounter++;
             }
         }
@@ -307,7 +307,7 @@ public class MyViewModel extends AndroidViewModel {
             e.printStackTrace();
             if (errorCounter == 0)
             {
-                Toast.makeText(getApplication(), greška, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplication(), greska, Toast.LENGTH_LONG).show();
                 errorCounter++;
             }
         }
