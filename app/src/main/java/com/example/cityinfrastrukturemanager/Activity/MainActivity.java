@@ -1,23 +1,14 @@
 package com.example.cityinfrastrukturemanager.Activity;
-
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -67,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     public Button resetBtn;
     public Spinner spinnerIspad;
     public Spinner spinnerZupanija;
-
     public int zupanija;
     public int vrstaIspada;
     public String datumP = null;
@@ -75,18 +65,23 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private Boolean filterReset = false;
     public MenuItem filterItem;
     public AlertDialog alertDialog;
+    public androidx.appcompat.widget.SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         viewModel = new ViewModelProvider(this,ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(MyViewModel.class);
-        this.lZupanije = viewModel.DohvatiZupanije();
-        this.lVrsteIspada = viewModel.DohvatiVrsteIspade();
+
+
+        lZupanije = viewModel.DohvatiZupanije();
+        lVrsteIspada = viewModel.DohvatiVrsteIspade();
+
 
         ToolbarSetup();
         GoToMaps();
         ViewPagerImplementation();
+
     }
 
 
@@ -169,9 +164,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         menuInflater.inflate(R.menu.menu_list, menu);
         filterItem = menu.findItem(R.id.filterSearch);
         MenuItem infoItem = menu.findItem(R.id.info);
-
         searchItem = menu.findItem(R.id.action_search);
-        androidx.appcompat.widget.SearchView searchView = (androidx.appcompat.widget.SearchView) searchItem.getActionView();
+        searchView = (androidx.appcompat.widget.SearchView) searchItem.getActionView();
         searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
         filterReset = false;
@@ -206,10 +200,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return true;
     }
 
-    private void SetFilterDialog()
+    public void SetFilterDialog()
     {
         alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-        final View ispadDetaljiView = getLayoutInflater().inflate(R.layout.filter_dialog_rijeseni_ispadi, null);
+        final View ispadDetaljiView = getLayoutInflater().inflate(R.layout.filter_dialog_rijeseni_ispadi, null, false);
         alertDialog.setView(ispadDetaljiView);
         alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         alertDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
@@ -228,22 +222,28 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         pocetakPicker = ispadDetaljiView.findViewById(R.id.fdPickerPocetak);
         krajPicker = ispadDetaljiView.findViewById(R.id.fdPickerKraj);
         resetBtn = ispadDetaljiView.findViewById(R.id.resetFilterBtn);
+        filterBtn = ispadDetaljiView.findViewById(R.id.filterBtn);
+
+        OnMenuClickItem();
+
+    }
+
+    public void OnMenuClickItem()
+    {
         filterItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
                 alertDialog.show();
+                searchView.setQuery("", true);
+                searchItem.collapseActionView();
 
-                if(datumP != null)
-                {
+                if (datumP != null) {
                     pocetakPicker.setText(datumP);
                 }
 
-                if(datumK != null)
-                {
+                if (datumK != null) {
                     krajPicker.setText(datumK);
                 }
-
-                filterBtn = ispadDetaljiView.findViewById(R.id.filterBtn);
 
                 pocetakPicker.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -265,16 +265,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 filterBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        ArrayList<IspadPrikaz> filter = new ArrayList<>();
-                        filter.clear();
-
                         zupanija = spinnerZupanija.getSelectedItemPosition();
                         vrstaIspada = spinnerIspad.getSelectedItemPosition();
 
-                        rijeseniIspadiFragment.GetFilter(spinnerZupanija.getSelectedItem().toString(), spinnerIspad.getSelectedItem().toString(), pocetakPicker.getText().toString(),krajPicker.getText().toString());
+                        rijeseniIspadiFragment.GetFilter(spinnerZupanija.getSelectedItem().toString(), spinnerIspad.getSelectedItem().toString(), pocetakPicker.getText().toString(), krajPicker.getText().toString());
                         trenutniIspadiFragment.GetFilter(spinnerZupanija.getSelectedItem().toString(), spinnerIspad.getSelectedItem().toString(), pocetakPicker.getText().toString(), krajPicker.getText().toString());
                         alertDialog.dismiss();
-                        searchItem.collapseActionView();
                     }
                 });
 
@@ -291,20 +287,19 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         zupanija = spinnerZupanija.getSelectedItemPosition();
                         vrstaIspada = spinnerIspad.getSelectedItemPosition();
 
-                        rijeseniIspadiFragment.GetFilter(spinnerZupanija.getSelectedItem().toString(), spinnerIspad.getSelectedItem().toString(), pocetakPicker.getText().toString(),krajPicker.getText().toString());
+
+                        rijeseniIspadiFragment.GetFilter(spinnerZupanija.getSelectedItem().toString(), spinnerIspad.getSelectedItem().toString(), pocetakPicker.getText().toString(), krajPicker.getText().toString());
                         trenutniIspadiFragment.GetFilter(spinnerZupanija.getSelectedItem().toString(), spinnerIspad.getSelectedItem().toString(), pocetakPicker.getText().toString(), krajPicker.getText().toString());
                         alertDialog.dismiss();
-                        searchItem.collapseActionView();
+
+
                     }
                 });
-
                 spinnerZupanija.setSelection(zupanija);
                 spinnerIspad.setSelection(vrstaIspada);
-
                 return false;
             }
         });
-
     }
 
     public void ShowDatePickerDialog()
@@ -328,7 +323,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     public void SetDate(String date)
     {
-        Log.d(TAG, "SetDate: filter reset " + filterReset);
         if(dateIntHelper == 0)
         {
             pocetakPicker.setText(date);

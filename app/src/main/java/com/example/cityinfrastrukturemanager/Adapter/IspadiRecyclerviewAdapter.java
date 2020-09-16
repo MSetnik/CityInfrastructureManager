@@ -16,10 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.cityinfrastrukturemanager.Model.IspadPrikaz;
 import com.example.cityinfrastrukturemanager.R;
 
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecyclerviewAdapter.IspadiViewHolder> implements Filterable {
     private ArrayList<IspadPrikaz>lIspadPrikaz;
@@ -89,23 +86,6 @@ public class IspadiRecyclerviewAdapter extends RecyclerView.Adapter<IspadiRecycl
         }
 
     }
-
-    private Date stringToDate(String aDate,String aFormat) {
-
-        if(aDate==null) return null;
-        ParsePosition pos = new ParsePosition(0);
-        SimpleDateFormat simpledateformat = new SimpleDateFormat(aFormat);
-        Date stringDate = simpledateformat.parse(aDate, pos);
-        return stringDate;
-
-    }
-
-
-    public void SetFilterOdabirLista(ArrayList<IspadPrikaz>lFilterIspadPrikaz)
-    {
-        this.lIspadPrikaz = lFilterIspadPrikaz;
-    }
-
 
     public static String GetTime(String datetime) {
         String strTime = datetime.substring(11,16);

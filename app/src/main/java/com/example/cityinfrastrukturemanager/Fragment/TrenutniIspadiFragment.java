@@ -53,12 +53,7 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
     private MyViewModel viewModel;
     private SwipeRefreshLayout swipeLayout;
     private static final int ERROR_DIALOG_REQUEST = 9001;
-    private TextView pocetakPicker;
-    private TextView krajPicker;
-    private int dateIntHelper;
 
-    private int zupanija;
-    private int ispad;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -218,23 +213,27 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
     @Override
     public void onRefresh() {
         ArrayList<IspadPrikaz> lIspadiT = viewModel.DohvatiTrenutneIspade();
-        ArrayList<IspadPrikaz> lIspadiR = viewModel.DohvatiRijeseneIspade();
-        if (lIspadiT.isEmpty()) {
-            Toast.makeText(getActivity(), "Greška prilikom dohvaćanja podataka", Toast.LENGTH_SHORT).show();
-        }
         if(getActivity() != null)
         {
-            ((MainActivity)getActivity()).searchItem.collapseActionView();
+            if (lIspadiT.isEmpty()) {
+                Toast.makeText(getActivity(), "Greška prilikom dohvaćanja podataka", Toast.LENGTH_SHORT).show();
+            }
+
             ClearFilter();
+
+            RefreshIspadiT();
+            ((MainActivity)getActivity()).rijeseniIspadiFragment.RefreshIspadiR();
+            swipeLayout.setRefreshing(false);
         }
+
+    }
+
+    public void RefreshIspadiT()
+    {
+        ArrayList<IspadPrikaz> lIspadiT = viewModel.DohvatiTrenutneIspade();
         recyclerviewAdapterT = new IspadiRecyclerviewAdapter(getContext(), lIspadiT);
         recyclerView.setAdapter(recyclerviewAdapterT);
-
-        IspadiRecyclerviewAdapter recyclerviewAdapterR = new IspadiRecyclerviewAdapter(getContext(), lIspadiR);
-        ((MainActivity)getActivity()).rijeseniIspadiFragment.recyclerView.setAdapter(recyclerviewAdapterR);
-
         OnIspadClick();
-        swipeLayout.setRefreshing(false);
     }
 
     private void ClearFilter()
@@ -245,16 +244,6 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
             ((MainActivity)getActivity()).spinnerIspad.setSelection(0);
             ((MainActivity)getActivity()).pocetakPicker.setText(R.string.odaberite_datum);
             ((MainActivity)getActivity()).krajPicker.setText(R.string.odaberite_datum);
-            ((MainActivity)getActivity()).filterItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem menuItem) {
-                    if(getActivity() != null)
-                    {
-                        ((MainActivity)getActivity()).alertDialog.show();
-                    }
-                    return false;
-                }
-            });
         }
 
     }
@@ -315,7 +304,7 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
 
 
     public static String GetTime(String datetime) {
-        String strTime = datetime.substring(12,16);
+        String strTime = datetime.substring(11,16);
         return strTime;
     }
 
@@ -350,27 +339,4 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
         }
         return false;
     }
-
-
-//    @Override
-//    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-//        DecimalFormat df = new DecimalFormat("00");
-//        int dan = day;
-//        int mon = month + 1;
-//        String sDan = df.format(dan);
-//        String mont = df.format(mon);
-//
-//
-//        String date = sDan + "." + mont + "."+ year;
-//        SetDate(date);
-//    }
-//
-//    public void SetDate(String date)
-//    {
-//        if(dateIntHelper == 0)
-//        {
-//            pocetakPicker.setText(date);
-//        }
-//    }
-//
 }
