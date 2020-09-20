@@ -42,7 +42,7 @@ import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener{
     private static final String TAG = "MyApp";
-    private MyViewModel viewModel;
+    public MyViewModel viewModel;
     private static final int ERROR_DIALOG_REQUEST = 9001;
 
     private ArrayList<Zupanija>lZupanije = new ArrayList<>();

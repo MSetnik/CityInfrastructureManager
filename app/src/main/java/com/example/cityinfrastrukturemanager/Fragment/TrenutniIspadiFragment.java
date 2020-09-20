@@ -1,23 +1,15 @@
 package com.example.cityinfrastrukturemanager.Fragment;
 
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -39,9 +30,7 @@ import com.example.cityinfrastrukturemanager.ViewModel.MyViewModel;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = "MyApp";
@@ -60,7 +49,7 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
         super.onCreate(savedInstanceState);
         if(getActivity() != null)
         {
-            viewModel = new ViewModelProvider(getActivity()).get(MyViewModel.class);
+            viewModel =((MainActivity)getActivity()).viewModel;
         }
         this.lTrenutniIspadi = viewModel.DohvatiTrenutneIspade();
     }
@@ -85,7 +74,7 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
         ArrayList<IspadPrikaz> filter = new ArrayList<>();
         filter.clear();
 
-        filter =  FilterLogic(zupanija, vrstaIspada, datumPocetak, datumKraj, lTrenutniIspadi);
+        filter =  viewModel.FilterLogic(zupanija, vrstaIspada, datumPocetak, datumKraj, lTrenutniIspadi);
 
         recyclerviewAdapterT = new IspadiRecyclerviewAdapter(getContext(), filter);
         recyclerView.setAdapter(recyclerviewAdapterT);
@@ -93,122 +82,6 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
         OnIspadClick();
     }
 
-    public ArrayList<IspadPrikaz> FilterLogic(String spinnerZupanija, String spinnerVrstaIspada, String datumPocetak, String datumKraj, ArrayList<IspadPrikaz>lTrenutniIspadi) {
-        ArrayList<IspadPrikaz> filter = new ArrayList<>();
-        String dateReversePocetak = datumPocetak;
-
-        String dateReverseKraj = datumKraj;
-
-        if (!datumPocetak.equals("Odaberite datum")) {
-            String date1 = datumPocetak.replaceAll("[.]", "");
-            dateReversePocetak = ReverseDate(date1);
-        }
-
-        if (!datumKraj.equals("Odaberite datum")) {
-            // datumi jednakim odabranim krajem se ne prikazuju workaround
-            String dateKrajString = datumKraj.replaceAll("[.]", "");
-
-            String reverseDate = ReverseDate(dateKrajString);
-            int dateInt = Integer.parseInt(reverseDate);
-
-            dateInt = dateInt+1;
-
-            String dateDayplusOne = String.valueOf(dateInt);
-            dateReverseKraj = dateDayplusOne;
-            Log.d(TAG, "FilterLogic: datereverse kraj " + dateDayplusOne);
-        }
-
-        for (IspadPrikaz ispadPrikaz : lTrenutniIspadi) {
-            String pocetakIspada = GetDate(ispadPrikaz.getPocetak_ispada());
-            pocetakIspada = pocetakIspada.replaceAll("[.]", "");
-            String krajIspada = "99999999";
-            if(!ispadPrikaz.getKraj_ispada().equals(""))
-            {
-                krajIspada = GetDate(ispadPrikaz.getKraj_ispada());
-                krajIspada = krajIspada.replaceAll("[.]", "");
-            }
-
-
-            if (!datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (spinnerZupanija.equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada()) && Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada))) {
-                    filter.add(ispadPrikaz);
-
-                }
-            } else if (datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && spinnerZupanija.equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
-                    filter.add(ispadPrikaz);
-                }
-
-            } else if (!datumPocetak.equals("Odaberite datum") && datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && spinnerZupanija.equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
-                    filter.add(ispadPrikaz);
-                }
-            } else if (!datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
-                    filter.add(ispadPrikaz);
-                }
-            } else if (!datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && spinnerZupanija.equals(ispadPrikaz.getZupanija())) {
-                    filter.add(ispadPrikaz);
-                }
-            } else if (datumPocetak.equals("Odaberite datum") && datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada()) && spinnerZupanija.equals(ispadPrikaz.getZupanija())) {
-                    filter.add(ispadPrikaz);
-                }
-            } else if (datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
-                    filter.add(ispadPrikaz);
-                }
-            } else if (datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && spinnerZupanija.equals(ispadPrikaz.getZupanija())) {
-                    filter.add(ispadPrikaz);
-                }
-            }else if (!datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada))) {
-                    filter.add(ispadPrikaz);
-                }
-            } else if (!datumPocetak.equals("Odaberite datum") && datumKraj.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
-                    Log.d(TAG, "FilterLogic:  pocetak ispada ");
-                    filter.add(ispadPrikaz);
-                }
-            } else if (!datumPocetak.equals("Odaberite datum") && datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && spinnerZupanija.equals(ispadPrikaz.getZupanija())) {
-                    filter.add(ispadPrikaz);
-                }
-            } else if (!datumPocetak.equals("Odaberite datum") && datumKraj.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada))) {
-                    filter.add(ispadPrikaz);
-                }
-            } else if (datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada))) {
-                    filter.add(ispadPrikaz);
-                }
-            } else if (datumPocetak.equals("Odaberite datum") && datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (spinnerZupanija.equals(ispadPrikaz.getZupanija())) {
-                    filter.add(ispadPrikaz);
-                }
-            } else if (datumPocetak.equals("Odaberite datum") && datumKraj.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
-                if (spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
-                    filter.add(ispadPrikaz);
-                }
-            } else {
-                filter = lTrenutniIspadi;
-            }
-
-
-        }
-        return filter;
-    }
-
-    private String ReverseDate(String date)
-    {
-        String godina = date.substring(4,8);
-        String mjesec = date.substring(2,4);
-        String dan = date.substring(0,2);
-        String strDate = godina+mjesec+dan;
-        return strDate;
-    }
 
     @Override
     public void onRefresh() {
@@ -271,8 +144,8 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
                 vrstaIspada.setText(ispadiPrikaz.getVrstaIspada());
                 opisIspada.setText(ispadiPrikaz.getOpis());
 
-                String pocetakVrijeme = GetTime(ispadiPrikaz.getPocetak_ispada());
-                String pocetakDatum = GetDate(ispadiPrikaz.getPocetak_ispada());
+                String pocetakVrijeme = viewModel.GetTime(ispadiPrikaz.getPocetak_ispada());
+                String pocetakDatum = viewModel.GetTime(ispadiPrikaz.getPocetak_ispada());
 
 
                 vrijemeIspada.setText(pocetakVrijeme);
@@ -300,20 +173,6 @@ public class TrenutniIspadiFragment extends Fragment implements SwipeRefreshLayo
             }
         });
 
-    }
-
-
-    public static String GetTime(String datetime) {
-        String strTime = datetime.substring(11,16);
-        return strTime;
-    }
-
-    public static String GetDate(String datetime) {
-        String godina = datetime.substring(0,4);
-        String mjesec = datetime.substring(5,7);
-        String dan = datetime.substring(8,10);
-        String strDate = dan+"."+mjesec+"."+godina+".";
-        return strDate;
     }
 
     public boolean IsServicesOK()

@@ -1,6 +1,7 @@
 package com.example.cityinfrastrukturemanager.ViewModel;
 
 import android.app.Application;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 public class MyViewModel extends AndroidViewModel {
-    private ArrayList<IspadPrikaz>lRijeseniIspadi = new ArrayList<>();
+    private ArrayList<IspadPrikaz> lIspadi = new ArrayList<>();
     private DbConn dbConn;
     private String json ="";
     private ArrayList<IspadPrikaz>lTrenutniIspadi = new ArrayList<>();
@@ -115,7 +116,7 @@ public class MyViewModel extends AndroidViewModel {
 
     private ArrayList<IspadPrikaz> SpremiRijeseneIspade()
     {
-        lRijeseniIspadi.clear();
+        lIspadi.clear();
         try {
             JSONArray jsonArray=(JSONArray) jsonParser.parse(json);
 
@@ -145,7 +146,7 @@ public class MyViewModel extends AndroidViewModel {
                 String status = jsonObject.get("status").toString();
 
                 IspadPrikaz ispadPrikaz = new IspadPrikaz(ispadID, ime, prezime, vrstaIspada, grad, lat, lng ,zupanija, pocetakIspada, krajIspada, opis,status );
-                lRijeseniIspadi.add(ispadPrikaz);
+                lIspadi.add(ispadPrikaz);
             }
 
         } catch (ParseException e) {
@@ -156,7 +157,7 @@ public class MyViewModel extends AndroidViewModel {
                 errorCounter++;
             }
         }
-        return lRijeseniIspadi;
+        return lIspadi;
     }
 
 
@@ -315,6 +316,198 @@ public class MyViewModel extends AndroidViewModel {
     }
 
 
+    public ArrayList<IspadPrikaz> FilterMapsLogic(String spinnerZupanija, String spinnerVrstaIspada, String datumPocetak, ArrayList<IspadPrikaz>lIspadPrikaz) {
+        ArrayList<IspadPrikaz> filter = new ArrayList<>();
+        String dateReversePocetak = datumPocetak;
 
+        if (!datumPocetak.equals("Odaberite datum")) {
+            String date = datumPocetak.replaceAll("[.]", "");
+            dateReversePocetak = ReverseDate(date);
+        }
+
+
+        for (IspadPrikaz ispadPrikaz : lIspadPrikaz) {
+            String pocetakIspada = GetDate(ispadPrikaz.getPocetak_ispada());
+            pocetakIspada = pocetakIspada.replaceAll("[.]", "");
+
+            if (!datumPocetak.equals("Odaberite datum")  && !spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (spinnerZupanija.equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada()) && Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada))) {
+
+                    Log.d(TAG, "FilterLogic: if 1 ");
+                    filter.add(ispadPrikaz);
+
+                }
+            } else if (datumPocetak.equals("Odaberite datum")  && !spinnerZupanija.toString().equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
+                if ( spinnerZupanija.equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.toString().equals(ispadPrikaz.getVrstaIspada())) {
+                    filter.add(ispadPrikaz);
+                }
+
+            } else if (!datumPocetak.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && spinnerZupanija.equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (!datumPocetak.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada))  && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (!datumPocetak.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada))&& spinnerZupanija.equals(ispadPrikaz.getZupanija())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (datumPocetak.equals("Odaberite datum")  && !spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada()) && spinnerZupanija.equals(ispadPrikaz.getZupanija())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (datumPocetak.equals("Odaberite datum")  && spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
+                if ( spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (datumPocetak.equals("Odaberite datum")  && !spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
+                if ( spinnerZupanija.equals(ispadPrikaz.getZupanija())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (!datumPocetak.equals("Odaberite datum")  && spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada))) {
+                    filter.add(ispadPrikaz);
+                }
+            } else {
+                filter = lIspadPrikaz;
+            }
+        }
+        return filter;
+    }
+
+
+    public String GetDate(String datetime) {
+        Log.d(TAG, "GetDate: " + datetime);
+        String godina = datetime.substring(0,4);
+        String mjesec = datetime.substring(5,7);
+        String dan = datetime.substring(8,10);
+        String strDate = dan+"."+mjesec+"."+godina;
+        return strDate;
+    }
+
+
+    private String ReverseDate(String date)
+    {
+        String godina = date.substring(4,8);
+        String mjesec = date.substring(2,4);
+        String dan = date.substring(0,2);
+        String strDate = godina+mjesec+dan;//datetime.substring(0,11);
+        return strDate;
+    }
+
+    public String GetTime(String datetime) {
+        String strTime = datetime.substring(11,16);
+        return strTime;
+    }
+
+
+    public ArrayList<IspadPrikaz> FilterLogic(String spinnerZupanija, String spinnerVrstaIspada, String datumPocetak, String datumKraj, ArrayList<IspadPrikaz>lIspadPrikaz) {
+        ArrayList<IspadPrikaz> filter = new ArrayList<>();
+        filter.clear();
+        String dateReversePocetak = datumPocetak;
+
+        String dateReverseKraj = datumKraj;
+        if (!datumPocetak.equals("Odaberite datum")) {
+            String date1 = datumPocetak.replaceAll("[.]", "");
+            dateReversePocetak = ReverseDate(date1);
+
+        }
+
+        if (!datumKraj.equals("Odaberite datum")) {
+            // datumi jednakim odabranim krajem se ne prikazuju workaround
+            String dateKrajString = datumKraj.replaceAll("[.]", "");
+
+            String reverseDate = ReverseDate(dateKrajString);
+            int dateInt = Integer.parseInt(reverseDate);
+
+            dateInt = dateInt+1;
+
+            String dateDayplusOne = String.valueOf(dateInt);
+            dateReverseKraj = dateDayplusOne;
+        }
+
+        for (IspadPrikaz ispadPrikaz : lIspadPrikaz) {
+            String pocetakIspada = GetDate(ispadPrikaz.getPocetak_ispada());
+            String krajIspada = "99999999";
+            if(!ispadPrikaz.getKraj_ispada().equals(""))
+            {
+                krajIspada = GetDate(ispadPrikaz.getKraj_ispada());
+                krajIspada = krajIspada.replaceAll("[.]", "");
+            }
+            Log.d(TAG, "FilterLogic: ispad prikaz filter "  + pocetakIspada + " " + krajIspada);
+            pocetakIspada = pocetakIspada.replaceAll("[.]", "");
+
+
+            if (!datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (spinnerZupanija.equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada()) && Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada))) {
+                    filter.add(ispadPrikaz);
+
+                }
+            } else if (datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && spinnerZupanija.equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
+                    filter.add(ispadPrikaz);
+                }
+
+            } else if (!datumPocetak.equals("Odaberite datum") && datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && spinnerZupanija.equals(ispadPrikaz.getZupanija()) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (!datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (!datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && spinnerZupanija.equals(ispadPrikaz.getZupanija())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (datumPocetak.equals("Odaberite datum") && datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada()) && spinnerZupanija.equals(ispadPrikaz.getZupanija())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada)) && spinnerZupanija.equals(ispadPrikaz.getZupanija())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (!datumPocetak.equals("Odaberite datum") && datumKraj.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
+                    Log.d(TAG, "FilterLogic:  pocetak ispada ");
+                    filter.add(ispadPrikaz);
+                }
+            } else if (!datumPocetak.equals("Odaberite datum") && datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && spinnerZupanija.equals(ispadPrikaz.getZupanija())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (!datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada)) && Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada))) {
+                    filter.add(ispadPrikaz);
+                }
+            }else if (!datumPocetak.equals("Odaberite datum") && datumKraj.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReversePocetak) <= Integer.parseInt(ReverseDate(pocetakIspada))) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (datumPocetak.equals("Odaberite datum") && !datumKraj.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (Integer.parseInt(dateReverseKraj) >= Integer.parseInt(ReverseDate(krajIspada))) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (datumPocetak.equals("Odaberite datum") && datumKraj.equals("Odaberite datum") && !spinnerZupanija.equals("Sve županije") && spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (spinnerZupanija.equals(ispadPrikaz.getZupanija())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else if (datumPocetak.equals("Odaberite datum") && datumKraj.equals("Odaberite datum") && spinnerZupanija.equals("Sve županije") && !spinnerVrstaIspada.equals("Svi ispadi")) {
+                if (spinnerVrstaIspada.equals(ispadPrikaz.getVrstaIspada())) {
+                    filter.add(ispadPrikaz);
+                }
+            } else {
+                filter = lIspadPrikaz;
+            }
+        }
+        return filter;
+    }
 
 }
